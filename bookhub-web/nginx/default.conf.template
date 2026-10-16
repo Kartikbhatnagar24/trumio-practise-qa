@@ -1,0 +1,16 @@
+server {
+    listen ${PORT};
+    root /usr/share/nginx/html;
+
+    location /api/ {
+        proxy_pass ${API_UPSTREAM}/;
+    }
+
+    location = /env-config.js {
+        add_header Cache-Control "no-store";
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

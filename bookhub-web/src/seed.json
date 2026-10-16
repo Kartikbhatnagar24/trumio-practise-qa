@@ -1,0 +1,22 @@
+{
+  "users": [
+    {"email": "admin@bookhub.test", "password": "Admin@123", "name": "Asha Admin", "role": "admin"},
+    {"email": "customer@bookhub.test", "password": "Customer@123", "name": "Chris Customer", "role": "customer"}
+  ],
+  "books": [
+    {"title": "The Silent Orchard", "author": "Meera Kapoor", "isbn": "9780000000011", "category": "Fiction", "price": 14.99, "stock": 12, "rating": 4.3, "published_on": "2021-03-14", "description": "A family saga set across three generations of apple farmers in the hills of Himachal."},
+    {"title": "Northern Lights Detective", "author": "Lars Holm", "isbn": "9780000000028", "category": "Fiction", "price": 11.5, "stock": 2, "rating": 3.9, "published_on": "2019-11-02", "description": "A retired inspector is pulled back into one last case during the polar night."},
+    {"title": "Paper Boats", "author": "Ana Ruiz", "isbn": "9780000000035", "category": "Fiction", "price": 9.99, "stock": 0, "rating": 4.7, "published_on": "2023-06-21", "description": "Short stories about childhood, monsoon rains and the friends we lose touch with."},
+    {"title": "A Brief Tour of the Cosmos", "author": "Dr. Ravi Menon", "isbn": "9780000000042", "category": "Science", "price": 22.0, "stock": 8, "rating": 4.5, "published_on": "2020-01-30", "description": "From the Big Bang to black holes, explained without a single equation."},
+    {"title": "The Hidden Life of Cells", "author": "Sarah Okafor", "isbn": "9780000000059", "category": "Science", "price": 18.75, "stock": 5, "rating": 4.1, "published_on": "2022-09-09", "description": "How the smallest units of life build, repair and defend the human body."},
+    {"title": "Empires of Salt", "author": "Thomas Greaves", "isbn": "9780000000066", "category": "History", "price": 24.5, "stock": 4, "rating": 4.0, "published_on": "2018-05-17", "description": "How one mineral shaped trade routes, wars and cities for five thousand years."},
+    {"title": "Letters from the Front", "author": "Edith Marlow", "isbn": "9780000000073", "category": "History", "price": 16.0, "stock": 9, "rating": 4.6, "published_on": "2017-08-04", "description": "Personal letters from soldiers and nurses, collected and annotated."},
+    {"title": "Clean Tests", "author": "Priya Natarajan", "isbn": "9780000000080", "category": "Technology", "price": 39.99, "stock": 15, "rating": 4.8, "published_on": "2024-02-12", "description": "Writing automated tests that are readable, stable and fast, with Playwright examples."},
+    {"title": "APIs in Practice", "author": "Daniel Weiss", "isbn": "9780000000097", "category": "Technology", "price": 34.0, "stock": 7, "rating": 4.2, "published_on": "2023-10-01", "description": "Designing, documenting and testing HTTP APIs that other teams enjoy using."},
+    {"title": "The Cloud Handbook", "author": "Lin Zhou", "isbn": "9780000000103", "category": "Technology", "price": 45.0, "stock": 3, "rating": 3.8, "published_on": "2022-04-18", "description": "Containers, clusters and the trade-offs nobody tells you about."},
+    {"title": "Milo and the Moon", "author": "Kiran Rao", "isbn": "9780000000110", "category": "Kids", "price": 7.5, "stock": 20, "rating": 4.9, "published_on": "2021-12-01", "description": "A curious cat builds a ladder to the moon. Picture book for ages 3 to 6."},
+    {"title": "Dinosaur Detectives", "author": "Ben Carter", "isbn": "9780000000127", "category": "Kids", "price": 8.99, "stock": 11, "rating": 4.4, "published_on": "2020-07-15", "description": "Three friends solve mysteries at the natural history museum."},
+    {"title": "Cooking with Spices", "author": "Farah Siddiqui", "isbn": "9780000000134", "category": "Lifestyle", "price": 27.25, "stock": 6, "rating": 4.5, "published_on": "2019-03-08", "description": "Eighty everyday recipes built around ten essential spices."},
+    {"title": "Small Space Gardening", "author": "Olivia Grant", "isbn": "9780000000141", "category": "Lifestyle", "price": 19.99, "stock": 1, "rating": 4.0, "published_on": "2024-05-20", "description": "Grow herbs and vegetables on a balcony, windowsill or rooftop."}
+  ]
+}
