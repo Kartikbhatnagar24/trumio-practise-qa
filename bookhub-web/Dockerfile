@@ -11,4 +11,7 @@ COPY nginx/default.conf.template /etc/nginx/templates/default.conf.template
 COPY nginx/40-env-config.sh /docker-entrypoint.d/40-env-config.sh
 RUN chmod +x /docker-entrypoint.d/40-env-config.sh
 COPY --from=build /app/dist /usr/share/nginx/html
+RUN sed -i -e '/^user /d' -e 's,/var/run/nginx.pid,/tmp/nginx.pid,' /etc/nginx/nginx.conf \
+    && chmod -R a+rwX /var/cache/nginx /etc/nginx/conf.d /usr/share/nginx/html
+USER 101
 EXPOSE 7410
