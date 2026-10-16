@@ -15,7 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        app: [bookhub-api, bookhub-web]
+        include:
+          - app: bookhub-api
+            port: 7420
+            path: /health
+          - app: bookhub-web
+            port: 7410
+            path: /
     steps:
       - uses: actions/checkout@v4
 
@@ -38,3 +44,10 @@ jobs:
             ghcr.io/${{ env.OWNER }}/${{ matrix.app }}:latest
           cache-from: type=gha,scope=${{ matrix.app }}
           cache-to: type=gha,mode=max,scope=${{ matrix.app }}
+
+      - name: Smoke test as a non-root user
+        run: |
+          docker run -d --name smoke --user 1000 -p ${{ matrix.port }}:${{ matrix.port }} ghcr.io/${{ env.OWNER }}/${{ matrix.app }}:${{ github.sha }}
+          for i in $(seq 1 20); do curl -fsS -o /dev/null localhost:${{ matrix.port }}${{ matrix.path }} && exit 0; sleep 1; done
+          docker logs smoke
+          exit 1
