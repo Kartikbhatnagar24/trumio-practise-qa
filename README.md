@@ -6,6 +6,7 @@ Practice apps that QA learners test from their Coder workspace. Each app is one 
 |---|---|---|
 | `bookhub-web` | 7410 | React bookshop: login, catalog (search, filters, sort, paging), book detail, cart (coupon, remove dialog), 3-step checkout, order confirmation, admin "Add book" modal |
 | `bookhub-api` | 7420 | FastAPI bookshop API on SQLite. Swagger UI at `/docs` (`/` redirects there) |
+| `app-preview-extension` | — | VS Code extension installed in QA workspaces: one status bar button per app listed in `TRIDE_APP_PREVIEWS` (e.g. `Shop:7410,API docs:7420/docs`), each opening the app in a panel. CI commits `builds/app-preview-<version>.vsix`; bump `version` in its `package.json` to publish a new file |
 
 ## Run locally
 
