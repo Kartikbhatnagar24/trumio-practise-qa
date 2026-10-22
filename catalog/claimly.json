@@ -1,0 +1,80 @@
+{
+  "app": "claimly",
+  "version": 1,
+  "images": {
+    "web": "ghcr.io/kartikbhatnagar24/claimly-web",
+    "api": "ghcr.io/kartikbhatnagar24/claimly-api"
+  },
+  "ports": { "web": 7450, "api": 7460 },
+  "env": { "variant": "CLAIMLY_VARIANT", "bugs": "CLAIMLY_BUGS", "api_upstream": "API_UPSTREAM" },
+  "logins": {
+    "password": "Claimly@2026",
+    "employee": "asha.verma@claimly.in",
+    "manager": "rahul.mehta@claimly.in",
+    "finance_admin": "neha.iyer@claimly.in"
+  },
+  "default": {
+    "api": { "claims_path": "claims", "amount_field": "amount", "merchant_field": "merchant", "date_field": "expense_date" },
+    "rules": {
+      "hotel_nightly_limit": 5000,
+      "meal_cap_by_grade": { "G1": 800, "G2": 1200, "G3": 1800 },
+      "max_claim_age_days": 60,
+      "receipt_required_from": 2000,
+      "manager_approval_limit": 10000
+    },
+    "ui": { "category_picker": "select", "date_input": "calendar", "submit_label": "submit_claim", "column_order": "date_first", "step_order": "details_first" }
+  },
+  "slots": {
+    "api": {
+      "claims_path": ["claims", "expenses"],
+      "amount_field": ["amount", "claim_amount"],
+      "merchant_field": ["merchant", "vendor"],
+      "date_field": ["expense_date", "spent_on"]
+    },
+    "ui": {
+      "category_picker": ["select", "radio", "combobox"],
+      "date_input": ["calendar", "typed"],
+      "submit_label": ["submit_claim", "send_for_approval"],
+      "column_order": ["date_first", "amount_first"],
+      "step_order": ["details_first", "receipt_first"]
+    },
+    "rules": {
+      "hotel_nightly_limit": { "min": 4000, "max": 7000, "step": 500 },
+      "meal_cap_by_grade": {
+        "G1": { "min": 600, "max": 1000, "step": 100 },
+        "G2": { "min": 1000, "max": 1500, "step": 100 },
+        "G3": { "min": 1500, "max": 2200, "step": 100 }
+      },
+      "max_claim_age_days": { "min": 30, "max": 90, "step": 15 },
+      "receipt_required_from": { "min": 1000, "max": 3000, "step": 500 },
+      "manager_approval_limit": { "min": 10000, "max": 30000, "step": 5000 }
+    }
+  },
+  "bugs": [
+    { "code": "q7m2", "name": "RECEIPT_AT_THRESHOLD", "layer": "api", "tier": "mid", "flow": "submit", "trigger": "Submit a claim of exactly the receipt threshold with no receipt.", "expected": "422 RECEIPT_REQUIRED: receipts are needed for claims of the threshold or more.", "actual": "The claim is submitted (200)." },
+    { "code": "t4k9", "name": "AGE_OFF_BY_ONE", "layer": "api", "tier": "mid", "flow": "submit", "trigger": "Submit a claim dated max_claim_age_days + 1 days ago.", "expected": "422 TOO_OLD.", "actual": "The claim is submitted (200)." },
+    { "code": "b8x1", "name": "FUTURE_DATE_ALLOWED", "layer": "api", "tier": "junior", "flow": "submit", "trigger": "Submit a claim dated tomorrow.", "expected": "422 FUTURE_DATE.", "actual": "The claim is submitted (200)." },
+    { "code": "n2v6", "name": "MEAL_CAP_WRONG_GRADE", "layer": "api", "tier": "mid", "flow": "submit", "trigger": "A G3 employee submits a meal above the G1 cap but within the G3 cap.", "expected": "Submitted (200): the cap follows the employee's grade.", "actual": "422 MEAL_OVER_CAP: the G1 cap is used for everyone." },
+    { "code": "h5r3", "name": "FX_TRUNCATES", "layer": "api", "tier": "senior", "flow": "money", "trigger": "Create a foreign-currency claim whose rupee value has a third decimal of 5 or more (e.g. USD 12.50).", "expected": "amount_inr rounded half-up to the paisa (1040.63).", "actual": "amount_inr truncated (1040.62)." },
+    { "code": "w9c4", "name": "SELF_APPROVAL", "layer": "api", "tier": "senior", "flow": "approvals", "trigger": "A manager submits a claim and approves it themselves.", "expected": "403: nobody can approve their own claim.", "actual": "Approved (200)." },
+    { "code": "d3p8", "name": "PARTIAL_OVER_CLAIMED", "layer": "api", "tier": "mid", "flow": "approvals", "trigger": "Approve with approved_amount above the claimed amount.", "expected": "422 on approved_amount.", "actual": "Approved with the higher amount (200)." },
+    { "code": "k6f2", "name": "PAY_SKIPS_FINANCE", "layer": "api", "tier": "senior", "flow": "approvals", "trigger": "Finance pays a manager-approved claim above manager_approval_limit without finance approval.", "expected": "409: finance must approve first.", "actual": "Paid (200)." },
+    { "code": "z1j7", "name": "DUPLICATE_ALLOWED", "layer": "api", "tier": "mid", "flow": "submit", "trigger": "Submit two claims with the same merchant, date and amount.", "expected": "409 DUPLICATE on the second.", "actual": "Both submitted (200)." },
+    { "code": "e8s5", "name": "OTHER_CLAIM_VISIBLE", "layer": "api", "tier": "senior", "flow": "claims", "trigger": "Employee B opens employee A's claim by id.", "expected": "404.", "actual": "200 with A's claim." },
+    { "code": "y2g9", "name": "TOTAL_IGNORES_FILTERS", "layer": "api", "tier": "junior", "flow": "lists", "trigger": "List claims with a category filter.", "expected": "total counts only matching claims.", "actual": "total counts all of the user's claims." },
+    { "code": "c5u3", "name": "SORT_DIRECTION_IGNORED", "layer": "api", "tier": "junior", "flow": "lists", "trigger": "List with sort=-amount.", "expected": "Highest amount first.", "actual": "Lowest amount first." },
+    { "code": "r4a6", "name": "ERROR_WRONG_FIELD", "layer": "api", "tier": "junior", "flow": "claims", "trigger": "Create a claim with amount 0.", "expected": "422 with loc ending in the amount field.", "actual": "loc names the merchant field." },
+    { "code": "g3n8", "name": "SEARCH_CASE_SENSITIVE", "layer": "api", "tier": "junior", "flow": "lists", "trigger": "Search claims with q in a different case from the merchant (\"uber\").", "expected": "Search ignores case.", "actual": "No results unless the case matches." },
+    { "code": "u6p1", "name": "PROJECT_SEARCH_CASE_SENSITIVE", "layer": "api", "tier": "junior", "flow": "claims", "trigger": "GET /projects?q=atlas.", "expected": "Atlas Payments Migration is returned.", "actual": "Empty list." },
+    { "code": "x4d9", "name": "STATUS_FILTER_FIRST_ONLY", "layer": "api", "tier": "mid", "flow": "lists", "trigger": "List with status=SUBMITTED&status=DRAFT.", "expected": "Claims in either status.", "actual": "Only the first status." },
+    { "code": "l5v7", "name": "DATE_TO_EXCLUSIVE", "layer": "api", "tier": "mid", "flow": "lists", "trigger": "Filter with date_to equal to a claim's expense date.", "expected": "The claim is included.", "actual": "The claim is left out." },
+    { "code": "o2w5", "name": "PAGE_OVERLAP", "layer": "api", "tier": "mid", "flow": "lists", "trigger": "Read page 2 after page 1 with the same sort.", "expected": "No claim appears on both pages.", "actual": "Page 2 starts with the last claim of page 1." },
+    { "code": "f6l2", "name": "ERROR_UNDER_WRONG_FIELD", "layer": "ui", "tier": "junior", "flow": "claim form", "trigger": "Leave Merchant empty and continue.", "expected": "The error shows under Merchant.", "actual": "The error shows under Description." },
+    { "code": "m3t8", "name": "SUMMARY_UNROUNDED", "layer": "ui", "tier": "mid", "flow": "claim form", "trigger": "Enter a foreign amount whose rupee value has more than two decimals.", "expected": "The summary shows rupees to two decimals.", "actual": "The summary shows the raw product (e.g. ₹832.91625)." },
+    { "code": "v7b4", "name": "DOUBLE_SUBMIT", "layer": "ui", "tier": "mid", "flow": "claim form", "trigger": "Click the final submit button twice quickly.", "expected": "The button is disabled while saving; one claim is created.", "actual": "The button stays enabled; a second request is sent." },
+    { "code": "a9q5", "name": "FILTER_KEEPS_PAGE", "layer": "ui", "tier": "junior", "flow": "lists", "trigger": "Go to page 2, then change a filter.", "expected": "The list goes back to page 1.", "actual": "The list stays on page 2, often empty." },
+    { "code": "s2h7", "name": "DATE_SHIFTS_DAY", "layer": "ui", "tier": "senior", "flow": "claim form", "trigger": "Pick or type an expense date in a timezone ahead of UTC (IST).", "expected": "The chosen day is saved.", "actual": "The day before is saved." },
+    { "code": "p8n3", "name": "SENT_BACK_AS_REJECTED", "layer": "ui", "tier": "junior", "flow": "lists", "trigger": "Look at a sent-back claim in a list.", "expected": "Badge reads Sent back.", "actual": "Badge reads Rejected." },
+    { "code": "j4w6", "name": "GENERIC_ERROR_TOAST", "layer": "ui", "tier": "mid", "flow": "approvals", "trigger": "Trigger an approval error (e.g. pay a claim that needs finance approval).", "expected": "The toast shows the API's reason.", "actual": "The toast says Something went wrong." }
+  ]
+}

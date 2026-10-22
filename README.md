@@ -6,6 +6,9 @@ Practice apps that QA learners test from their Coder workspace. Each app is one 
 |---|---|---|
 | `bookhub-web` | 7410 | React bookshop: login, catalog (search, filters, sort, paging), book detail, cart (coupon, remove dialog), 3-step checkout, order confirmation, admin "Add book" modal |
 | `bookhub-api` | 7420 | FastAPI bookshop API on SQLite. Swagger UI at `/docs` (`/` redirects there) |
+| `claimly-web` | 7450 | Expense-claims app for employees, managers and finance: claims list, two-step claim form, approvals, policy page. See `claimly-web/README.md` |
+| `claimly-api` | 7460 | FastAPI expense-claims API on SQLite. Swagger UI at `/docs`. See `claimly-api/README.md` |
+| `catalog/claimly.json` | — | Claimly's variant options and planted-bug list, read by the platform when it sets up a learner's workspace. Never shipped in an image |
 | `app-preview-extension` | — | VS Code extension installed in QA workspaces: one status bar button per app listed in `TRIDE_APP_PREVIEWS` (e.g. `Shop:7410,API docs:7420/docs`), each opening the app in a panel. CI commits `builds/app-preview-<version>.vsix`; bump `version` in its `package.json` to publish a new file |
 
 ## Run locally
@@ -52,6 +55,8 @@ The web app works under any path prefix (relative assets, hash routes, relative 
 
 - `ghcr.io/<owner>/bookhub-api:<sha>` and `:latest`
 - `ghcr.io/<owner>/bookhub-web:<sha>` and `:latest`
+- `ghcr.io/<owner>/claimly-api:<sha>` and `:latest`
+- `ghcr.io/<owner>/claimly-web:<sha>` and `:latest`
 
 ## Workspace layouts
 
