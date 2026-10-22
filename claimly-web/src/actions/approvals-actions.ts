@@ -1,5 +1,5 @@
 import { hasUiBug } from "@/configs/env";
-import { UiBug } from "@/constraints/enums/bug-enums";
+import * as UiBug from "@/constraints/enums/bug-enums";
 import { ToastType } from "@/constraints/enums/core-enums";
 import { Claim, ClaimFilters } from "@/constraints/types/claim-types";
 import * as approvalsService from "@/services/approvals-service";

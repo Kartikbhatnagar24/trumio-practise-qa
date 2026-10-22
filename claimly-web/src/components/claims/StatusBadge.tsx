@@ -1,5 +1,5 @@
 import { hasUiBug } from "@/configs/env";
-import { UiBug } from "@/constraints/enums/bug-enums";
+import * as UiBug from "@/constraints/enums/bug-enums";
 import { ClaimStatus } from "@/constraints/enums/claim-enums";
 import { STATUS_LABELS, STATUS_TONES } from "@/utils/format-utils";
 

@@ -1,4 +1,5 @@
 import json
+from datetime import date
 
 import pytest
 
@@ -67,6 +68,13 @@ def test_status_matches_last_event(seed):
     assert all(last.get(claim['id'], 'DRAFT') == claim['status'] for claim in seed['claims'])
 
 
+def test_asha_open_claims_fit_the_strictest_age_rule(seed):
+    anchor = date.fromisoformat(seed['anchor_date'])
+    open_claims = [claim for claim in seed['claims'] if claim['employee_id'] == 'u-asha' and claim['status'] in ('DRAFT', 'SUBMITTED', 'SENT_BACK')]
+    assert open_claims
+    assert all((anchor - date.fromisoformat(claim['expense_date'])).days <= 25 for claim in open_claims)
+
+
 def test_large_claims_have_receipts(seed):
     large = [claim for claim in seed['claims'] if claim['amount_inr_paise'] >= 200000]
     assert all(claim['receipt_filename'] for claim in large)
@@ -80,10 +88,11 @@ def test_seed_logins_work(demo):
 def test_reset_moves_seed_dates_to_today(demo, seed):
     from datetime import date, timedelta
 
+    from app.core.clock import local_today
     from app.core.database import connect
 
     newest_seeded = max(date.fromisoformat(claim['expense_date']) for claim in seed['claims'])
-    shift = date.today() - date.fromisoformat(seed['anchor_date'])
+    shift = local_today() - date.fromisoformat(seed['anchor_date'])
     conn = connect()
     newest = conn.execute('SELECT MAX(expense_date) FROM claims').fetchone()[0]
     first_event = conn.execute('SELECT at FROM events ORDER BY id LIMIT 1').fetchone()[0]

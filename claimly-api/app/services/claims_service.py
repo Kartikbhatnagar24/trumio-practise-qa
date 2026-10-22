@@ -1,9 +1,10 @@
 import sqlite3
-from datetime import UTC, date, datetime
+from datetime import date
 from decimal import Decimal
 
 from fastapi import HTTPException, UploadFile, status
 
+from app.core.clock import now_iso as now
 from app.core.config import settings
 from app.core.context import AppContext
 from app.models.claims import ClaimFilters
@@ -18,10 +19,6 @@ from app.static.enums import Category, ClaimStatus, Currency, Role
 EDITABLE = {ClaimStatus.DRAFT.value, ClaimStatus.SENT_BACK.value}
 RECEIPT_TYPES = {'application/pdf', 'image/jpeg', 'image/png'}
 MAX_RECEIPT_BYTES = 5 * 1024 * 1024
-
-
-def now() -> str:
-    return datetime.now(UTC).isoformat(timespec='seconds')
 
 
 def field_error(loc: list[str], message: str, error_type: str = 'value_error') -> HTTPException:
@@ -70,7 +67,7 @@ def create_claim(conn: sqlite3.Connection, user: User, details: dict, bugs: froz
         'expense_date': details['expense_date'].isoformat(),
         'description': details.get('description', ''),
         'project_id': details.get('project_id'),
-        'nights': details.get('nights'),
+        'nights': details.get('nights') if details['category'] == Category.HOTEL else None,
         'status': ClaimStatus.DRAFT.value,
         'created_at': now(),
         **amounts(details, bugs),
@@ -102,7 +99,7 @@ def update_claim(conn: sqlite3.Connection, user: User, claim_id: int, changes: d
         'expense_date': expense_date if isinstance(expense_date, str) else expense_date.isoformat(),
         'description': merged['description'] or '',
         'project_id': merged['project_id'],
-        'nights': merged['nights'],
+        'nights': merged['nights'] if merged['category'] == Category.HOTEL else None,
         **amounts(merged, bugs),
     }
     assignments = ', '.join(f'{column} = :{column}' for column in row)

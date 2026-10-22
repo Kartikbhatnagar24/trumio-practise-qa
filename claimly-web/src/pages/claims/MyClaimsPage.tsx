@@ -10,7 +10,7 @@ import { PlusIcon, WarnIcon } from "@/components/common/icons";
 import { Pager } from "@/components/common/tables/Pager";
 import { Button } from "@/components/ui/button";
 import { hasUiBug } from "@/configs/env";
-import { UiBug } from "@/constraints/enums/bug-enums";
+import * as UiBug from "@/constraints/enums/bug-enums";
 import { ClaimStatus, Role } from "@/constraints/enums/claim-enums";
 import { ClaimFilters as Filters } from "@/constraints/types/claim-types";
 import { cn } from "@/lib/utils";
@@ -61,7 +61,9 @@ export function MyClaimsPage() {
           </div>
           {!isFinance && (
             <div className="flex gap-2.5">
-              <Button variant="secondary">Download statement</Button>
+              <Button variant="secondary" disabled title="Coming soon">
+                Download statement
+              </Button>
               <Button asChild>
                 <Link to={paths.newClaim}>
                   <PlusIcon />

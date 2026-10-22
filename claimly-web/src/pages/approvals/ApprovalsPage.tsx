@@ -6,7 +6,7 @@ import { ClaimsTable } from "@/components/claims/ClaimsTable";
 import { TopBar } from "@/components/common/header/TopBar";
 import { Pager } from "@/components/common/tables/Pager";
 import { hasUiBug } from "@/configs/env";
-import { UiBug } from "@/constraints/enums/bug-enums";
+import * as UiBug from "@/constraints/enums/bug-enums";
 import { Role } from "@/constraints/enums/claim-enums";
 import { ClaimFilters as Filters } from "@/constraints/types/claim-types";
 import { cn } from "@/lib/utils";

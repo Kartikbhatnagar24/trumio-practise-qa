@@ -625,7 +625,7 @@
    "amount_minor": 992775,
    "amount_inr_paise": 992775,
    "merchant": "Bombay Canteen",
-   "expense_date": "2026-05-12",
+   "expense_date": "2026-05-28",
    "description": "Dinner with client stakeholders",
    "project_id": "p-lotus",
    "nights": null,
@@ -634,7 +634,7 @@
    "receipt_filename": "receipt-10001.pdf",
    "receipt_size": 518168,
    "receipt_content_type": "application/pdf",
-   "created_at": "2026-05-12T15:38:40+05:30",
+   "created_at": "2026-05-28T15:38:40+05:30",
    "submitted_at": null
   },
   {
@@ -645,77 +645,77 @@
    "amount_minor": 7443,
    "amount_inr_paise": 784492,
    "merchant": "The Wolseley",
-   "expense_date": "2026-06-07",
-   "description": "Dinner with client stakeholders",
-   "project_id": null,
+   "expense_date": "2026-05-22",
+   "description": "Steering committee dinner",
+   "project_id": "p-banyan",
    "nights": null,
    "status": "SUBMITTED",
    "approved_amount_inr_paise": null,
    "receipt_filename": "receipt-10002.pdf",
-   "receipt_size": 351173,
+   "receipt_size": 596071,
    "receipt_content_type": "application/pdf",
-   "created_at": "2026-06-09T09:05:37+05:30",
-   "submitted_at": "2026-06-09T10:33:59+05:30"
+   "created_at": "2026-05-25T10:52:17+05:30",
+   "submitted_at": "2026-05-26T09:05:37+05:30"
   },
   {
    "id": 10003,
    "employee_id": "u-asha",
-   "category": "AIRFARE",
-   "currency": "INR",
-   "amount_minor": 2366645,
-   "amount_inr_paise": 2366645,
-   "merchant": "Air India",
-   "expense_date": "2026-05-13",
-   "description": "Travel to delivery centre",
-   "project_id": "p-harbor",
-   "nights": null,
+   "category": "HOTEL",
+   "currency": "EUR",
+   "amount_minor": 5577,
+   "amount_inr_paise": 502488,
+   "merchant": "Hotel Adlon Kempinski",
+   "expense_date": "2026-05-23",
+   "description": "Onsite deployment support",
+   "project_id": "p-atlas",
+   "nights": 1,
    "status": "SENT_BACK",
    "approved_amount_inr_paise": null,
    "receipt_filename": "receipt-10003.pdf",
-   "receipt_size": 450871,
+   "receipt_size": 200540,
    "receipt_content_type": "application/pdf",
-   "created_at": "2026-05-14T10:10:34+05:30",
-   "submitted_at": "2026-05-15T09:02:47+05:30"
+   "created_at": "2026-05-26T14:08:01+05:30",
+   "submitted_at": "2026-05-26T15:05:10+05:30"
   },
   {
    "id": 10004,
    "employee_id": "u-asha",
-   "category": "LOCAL_TRANSPORT",
+   "category": "HOTEL",
    "currency": "INR",
-   "amount_minor": 96476,
-   "amount_inr_paise": 96476,
-   "merchant": "Ola Cabs",
-   "expense_date": "2026-01-27",
-   "description": "Airport drop",
-   "project_id": "p-lotus",
-   "nights": null,
+   "amount_minor": 1141014,
+   "amount_inr_paise": 1141014,
+   "merchant": "Taj Lands End",
+   "expense_date": "2026-03-09",
+   "description": "Quarterly planning offsite",
+   "project_id": "p-quartz",
+   "nights": 3,
    "status": "MANAGER_APPROVED",
-   "approved_amount_inr_paise": 96476,
-   "receipt_filename": null,
-   "receipt_size": null,
-   "receipt_content_type": null,
-   "created_at": "2026-01-30T15:02:31+05:30",
-   "submitted_at": "2026-01-30T18:11:28+05:30"
+   "approved_amount_inr_paise": 1141014,
+   "receipt_filename": "receipt-10004.pdf",
+   "receipt_size": 763994,
+   "receipt_content_type": "application/pdf",
+   "created_at": "2026-03-10T12:25:15+05:30",
+   "submitted_at": "2026-03-12T14:26:02+05:30"
   },
   {
    "id": 10005,
    "employee_id": "u-asha",
-   "category": "AIRFARE",
+   "category": "HOTEL",
    "currency": "INR",
-   "amount_minor": 2542768,
-   "amount_inr_paise": 2542768,
-   "merchant": "IndiGo",
-   "expense_date": "2026-04-01",
-   "description": "Return flight after go-live",
-   "project_id": "p-nimbus",
-   "nights": null,
+   "amount_minor": 2311308,
+   "amount_inr_paise": 2311308,
+   "merchant": "Marriott Whitefield",
+   "expense_date": "2026-05-22",
+   "description": "Quarterly planning offsite",
+   "project_id": "p-banyan",
+   "nights": 4,
    "status": "PAID",
-   "approved_amount_inr_paise": 2542768,
+   "approved_amount_inr_paise": 2311308,
    "receipt_filename": "receipt-10005.pdf",
-   "receipt_size": 348986,
+   "receipt_size": 528029,
    "receipt_content_type": "application/pdf",
-   "created_at": "2026-04-01T12:55:33+05:30",
-   "submitted_at": "2026-04-02T13:49:27+05:30"
+   "created_at": "2026-05-23T11:18:15+05:30",
+   "submitted_at": "2026-05-25T14:17:49+05:30"
   },
   {
    "id": 10006,
@@ -5107,7 +5107,7 @@
    "to_status": "SUBMITTED",
    "comment": null,
    "amount_inr_paise": null,
-   "at": "2026-06-09T10:33:59+05:30"
+   "at": "2026-05-26T09:05:37+05:30"
   },
   {
    "claim_id": 10003,
@@ -5117,7 +5117,7 @@
    "to_status": "SUBMITTED",
    "comment": null,
    "amount_inr_paise": null,
-   "at": "2026-05-15T09:02:47+05:30"
+   "at": "2026-05-26T15:05:10+05:30"
   },
   {
    "claim_id": 10003,
@@ -5125,9 +5125,9 @@
    "action": "send_back",
    "from_status": "SUBMITTED",
    "to_status": "SENT_BACK",
-   "comment": "Attach the itemised bill, not the card slip.",
+   "comment": "Split the personal part of this bill.",
    "amount_inr_paise": null,
-   "at": "2026-05-16T14:45:09+05:30"
+   "at": "2026-05-29T09:02:47+05:30"
   },
   {
    "claim_id": 10004,
@@ -5137,7 +5137,7 @@
    "to_status": "SUBMITTED",
    "comment": null,
    "amount_inr_paise": null,
-   "at": "2026-01-30T18:11:28+05:30"
+   "at": "2026-03-12T14:26:02+05:30"
   },
   {
    "claim_id": 10004,
@@ -5146,8 +5146,8 @@
    "from_status": "SUBMITTED",
    "to_status": "MANAGER_APPROVED",
    "comment": null,
-   "amount_inr_paise": 96476,
-   "at": "2026-01-31T18:30:37+05:30"
+   "amount_inr_paise": 1141014,
+   "at": "2026-03-14T16:12:49+05:30"
   },
   {
    "claim_id": 10005,
@@ -5157,7 +5157,7 @@
    "to_status": "SUBMITTED",
    "comment": null,
    "amount_inr_paise": null,
-   "at": "2026-04-02T13:49:27+05:30"
+   "at": "2026-05-25T14:17:49+05:30"
   },
   {
    "claim_id": 10005,
@@ -5166,8 +5166,8 @@
    "from_status": "SUBMITTED",
    "to_status": "MANAGER_APPROVED",
    "comment": null,
-   "amount_inr_paise": 2542768,
-   "at": "2026-04-03T14:38:55+05:30"
+   "amount_inr_paise": 2311308,
+   "at": "2026-05-26T14:38:55+05:30"
   },
   {
    "claim_id": 10005,
@@ -5176,8 +5176,8 @@
    "from_status": "MANAGER_APPROVED",
    "to_status": "FINANCE_APPROVED",
    "comment": null,
-   "amount_inr_paise": 2542768,
-   "at": "2026-04-04T18:23:51+05:30"
+   "amount_inr_paise": 2311308,
+   "at": "2026-05-27T18:23:51+05:30"
   },
   {
    "claim_id": 10005,
@@ -5186,8 +5186,8 @@
    "from_status": "FINANCE_APPROVED",
    "to_status": "PAID",
    "comment": null,
-   "amount_inr_paise": 2542768,
-   "at": "2026-04-10T10:35:10+05:30"
+   "amount_inr_paise": 2311308,
+   "at": "2026-06-02T10:35:10+05:30"
   },
   {
    "claim_id": 10006,

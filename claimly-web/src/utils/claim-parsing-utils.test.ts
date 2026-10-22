@@ -55,6 +55,14 @@ describe('toClaimPayload', () => {
   });
 });
 
+describe('toClaimPayload nights', () => {
+  it('sends nights only for hotel claims', () => {
+    const base = { currency: Currency.INR, amount: '300', merchant: 'Cafe', expenseDate: '2026-06-10', description: '', projectId: null, nights: 3 };
+    expect(toClaimPayload({ ...base, category: Category.MEALS }, ALTERNATE).nights).toBeNull();
+    expect(toClaimPayload({ ...base, category: Category.HOTEL }, ALTERNATE).nights).toBe(3);
+  });
+});
+
 describe('getVariant', () => {
   it('falls back to the default when the container sets nothing', () => {
     expect(getVariant()).toEqual(DEFAULT_VARIANT);

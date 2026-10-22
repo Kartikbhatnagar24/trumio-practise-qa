@@ -1,7 +1,7 @@
 import { format, isValid, parse } from "date-fns";
 
 import { hasUiBug } from "@/configs/env";
-import { UiBug } from "@/constraints/enums/bug-enums";
+import * as UiBug from "@/constraints/enums/bug-enums";
 
 export const toIsoDate = (date: Date): string => (hasUiBug(UiBug.DATE_SHIFTS_DAY) ? date.toISOString().slice(0, 10) : format(date, "yyyy-MM-dd"));
 

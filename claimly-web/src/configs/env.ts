@@ -1,4 +1,4 @@
-import { UiBug } from "@/constraints/enums/bug-enums";
+import { UI_BUG_CODES, type UiBug } from "@/constraints/enums/bug-enums";
 import { CategoryPicker, ColumnOrder, DateInput, StepOrder, SubmitLabel } from "@/constraints/enums/variant-enums";
 import { WebVariant } from "@/constraints/types/variant-types";
 import { keysToCamelCase } from "@/utils/core-utils";
@@ -21,7 +21,7 @@ export const getVariant = (): WebVariant => {
   return variant ? keysToCamelCase(variant) : DEFAULT_VARIANT;
 };
 
-const KNOWN_UI_BUGS = new Set<string>(Object.values(UiBug));
+const KNOWN_UI_BUGS = new Set<string>(UI_BUG_CODES);
 
 export const getUiBugs = (): Set<UiBug> => new Set((runtimeEnv().UI_BUGS ?? []).filter((code: string) => KNOWN_UI_BUGS.has(code)));
 

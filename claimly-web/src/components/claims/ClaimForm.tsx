@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input, NativeSelect, Textarea } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getVariant, hasUiBug } from "@/configs/env";
-import { UiBug } from "@/constraints/enums/bug-enums";
+import * as UiBug from "@/constraints/enums/bug-enums";
 import { Category, ClaimStatus, Currency } from "@/constraints/enums/claim-enums";
 import { StepOrder, SubmitLabel } from "@/constraints/enums/variant-enums";
 import { Claim, ClaimForm as ClaimFormData, FieldIssue, Project } from "@/constraints/types/claim-types";

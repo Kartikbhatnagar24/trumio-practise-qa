@@ -196,7 +196,7 @@ def build_claims(rng: random.Random, users: list[dict]) -> tuple[list[dict], lis
         amount = (inr / RATES_TO_INR[currency]).quantize(Decimal('0.01'))
         if index < len(asha_statuses):
             status = asha_statuses[index]
-            expense_date = TODAY - timedelta(days=rng.randint(3, 40) if status in (ClaimStatus.DRAFT, ClaimStatus.SUBMITTED, ClaimStatus.SENT_BACK) else rng.randint(20, 150))
+            expense_date = TODAY - timedelta(days=rng.randint(3, 25) if status in (ClaimStatus.DRAFT, ClaimStatus.SUBMITTED, ClaimStatus.SENT_BACK) else rng.randint(20, 150))
         else:
             status = rng.choices(list(STATUS_WEIGHTS), weights=list(STATUS_WEIGHTS.values()))[0]
             expense_date = TODAY - timedelta(days=rng.randint(3, 182))

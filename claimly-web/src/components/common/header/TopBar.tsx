@@ -64,11 +64,8 @@ export function TopBar({ crumbs, search, onSearch, children }: TopBarProps) {
       <Link to={paths.help} className="text-[13px] no-underline">
         Claim guide
       </Link>
-      <Button variant="secondary" size="icon" aria-label="Notifications, 2 new" className="relative">
+      <Button variant="secondary" size="icon" disabled aria-label="Notifications, coming soon" title="Coming soon">
         <BellIcon />
-        <span aria-hidden="true" className="absolute -top-1.5 -right-1.5 h-4 min-w-4 rounded-full bg-danger px-1 text-center text-[10px] font-semibold leading-4 text-white">
-          2
-        </span>
       </Button>
       <Button
         variant="ghost"

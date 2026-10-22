@@ -7,6 +7,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
+from app.core.clock import local_today
 from app.core.config import settings
 
 SCHEMA = """
@@ -94,7 +95,7 @@ def get_db() -> Iterator[sqlite3.Connection]:
         yield conn
 
 
-Db = Annotated[sqlite3.Connection, Depends(get_db)]
+Db = Annotated[sqlite3.Connection, Depends(get_db, scope='function')]
 
 
 def load_seed() -> dict:
@@ -113,7 +114,7 @@ def shift(value: str | None, days: timedelta) -> str | None:
 
 
 def move_to_today(seed: dict) -> dict:
-    days = date.today() - date.fromisoformat(seed['anchor_date'])
+    days = local_today() - date.fromisoformat(seed['anchor_date'])
     moved = {table: rows for table, rows in seed.items() if table != 'anchor_date'}
     for table, columns in DATE_COLUMNS.items():
         moved[table] = [{**row, **{column: shift(row[column], days) for column in columns}} for row in seed.get(table, [])]

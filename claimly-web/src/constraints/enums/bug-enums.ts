@@ -1,9 +1,11 @@
-export enum UiBug {
-  ERROR_UNDER_WRONG_FIELD = "f6l2",
-  SUMMARY_UNROUNDED = "m3t8",
-  DOUBLE_SUBMIT = "v7b4",
-  FILTER_KEEPS_PAGE = "a9q5",
-  DATE_SHIFTS_DAY = "s2h7",
-  SENT_BACK_AS_REJECTED = "p8n3",
-  GENERIC_ERROR_TOAST = "j4w6",
-}
+export const ERROR_UNDER_WRONG_FIELD = "f6l2";
+export const SUMMARY_UNROUNDED = "m3t8";
+export const DOUBLE_SUBMIT = "v7b4";
+export const FILTER_KEEPS_PAGE = "a9q5";
+export const DATE_SHIFTS_DAY = "s2h7";
+export const SENT_BACK_AS_REJECTED = "p8n3";
+export const GENERIC_ERROR_TOAST = "j4w6";
+
+export const UI_BUG_CODES = [ERROR_UNDER_WRONG_FIELD, SUMMARY_UNROUNDED, DOUBLE_SUBMIT, FILTER_KEEPS_PAGE, DATE_SHIFTS_DAY, SENT_BACK_AS_REJECTED, GENERIC_ERROR_TOAST];
+
+export type UiBug = (typeof UI_BUG_CODES)[number];

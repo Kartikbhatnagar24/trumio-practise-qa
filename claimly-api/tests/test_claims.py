@@ -53,6 +53,40 @@ def test_hotel_requires_nights_422(client):
     assert response.json()['detail'][0]['loc'] == ['body', 'nights']
 
 
+def test_create_is_committed_before_the_response_starts(client_for):
+    from app.core.database import connect
+
+    client = client_for()
+    seen = []
+
+    class CommitProbe:
+        def __init__(self, app):
+            self.app = app
+
+        async def __call__(self, scope, receive, send):
+            async def watch(message):
+                if message['type'] == 'http.response.start' and scope.get('path') == '/claims' and scope.get('method') == 'POST':
+                    conn = connect()
+                    seen.append(conn.execute('SELECT COUNT(*) FROM claims').fetchone()[0])
+                    conn.close()
+                await send(message)
+
+            await self.app(scope, receive, watch)
+
+    client.app.add_middleware(CommitProbe)
+    create_draft(client, login(client, ASHA))
+    assert seen == [1]
+
+
+def test_nights_dropped_for_non_hotel(client):
+    headers = login(client, ASHA)
+    claim = create_draft(client, headers, category='MEALS', nights=3)
+    assert claim['nights'] is None
+    hotel = create_draft(client, headers, category='HOTEL', nights=2, amount='4000.00')
+    changed = client.patch(f'/claims/{hotel["id"]}', json={'category': 'MEALS'}, headers=headers).json()
+    assert changed['nights'] is None
+
+
 def test_other_employee_gets_404(client):
     claim = create_draft(client, login(client, ASHA))
     assert client.get(f'/claims/{claim["id"]}', headers=login(client, VIKRAM)).status_code == 404

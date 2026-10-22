@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { getUiBugs } from '@/configs/env';
-import { UiBug } from '@/constraints/enums/bug-enums';
+import * as UiBug from '@/constraints/enums/bug-enums';
 import { Currency } from '@/constraints/enums/claim-enums';
 import { toInr } from '@/components/claims/ClaimSummary';
 import { toIsoDate } from '@/utils/date-utils';
@@ -14,6 +14,13 @@ const withBugs = (codes: string[]) => {
 
 afterEach(() => {
   delete (window as any).__ENV__;
+});
+
+describe('bug module', () => {
+  it('exports no object that maps readable names to codes', async () => {
+    const exported = Object.values(await import('@/constraints/enums/bug-enums'));
+    expect(exported.some((value) => value !== null && typeof value === 'object' && !Array.isArray(value))).toBe(false);
+  });
 });
 
 describe('getUiBugs', () => {

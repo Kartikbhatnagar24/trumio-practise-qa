@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 
 import { hasUiBug } from "@/configs/env";
-import { UiBug } from "@/constraints/enums/bug-enums";
+import * as UiBug from "@/constraints/enums/bug-enums";
 import { Category, Currency } from "@/constraints/enums/claim-enums";
 import { Claim, Policy, User } from "@/constraints/types/claim-types";
 import { paths } from "@/routes";

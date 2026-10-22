@@ -1,3 +1,4 @@
+import { Category } from "@/constraints/enums/claim-enums";
 import { Claim, ClaimForm, ClaimPage } from "@/constraints/types/claim-types";
 import { WebVariant } from "@/constraints/types/variant-types";
 import { keysToCamelCase } from "@/utils/core-utils";
@@ -29,5 +30,5 @@ export const toClaimPayload = (form: ClaimForm, variant: WebVariant): Record<str
   [variant.api.dateField]: form.expenseDate,
   description: form.description,
   project_id: form.projectId,
-  nights: form.nights,
+  nights: form.category === Category.HOTEL ? form.nights : null,
 });
