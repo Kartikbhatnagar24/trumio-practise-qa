@@ -75,7 +75,7 @@ export function CategoryField({ picker, value, error, onChange }: CategoryFieldP
             </PopoverTrigger>
             <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
               <Command>
-                <CommandInput placeholder="Type to search" aria-label="Search categories" />
+                <CommandInput placeholder="Type to search…"aria-label="Search categories" />
                 <CommandList>
                   <CommandEmpty className="px-3 py-2 text-secondary">No category matches.</CommandEmpty>
                   {OPTIONS.map((option) => (

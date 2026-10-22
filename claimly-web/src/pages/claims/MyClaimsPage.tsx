@@ -9,6 +9,8 @@ import { TopBar } from "@/components/common/header/TopBar";
 import { PlusIcon, WarnIcon } from "@/components/common/icons";
 import { Pager } from "@/components/common/tables/Pager";
 import { Button } from "@/components/ui/button";
+import { hasUiBug } from "@/configs/env";
+import { UiBug } from "@/constraints/enums/bug-enums";
 import { ClaimStatus, Role } from "@/constraints/enums/claim-enums";
 import { ClaimFilters as Filters } from "@/constraints/types/claim-types";
 import { cn } from "@/lib/utils";
@@ -41,7 +43,7 @@ export function MyClaimsPage() {
     if (!isFinance) loadSummary();
   }, [isFinance]);
 
-  const apply = (changes: Filters) => loadClaims({ ...filters, ...changes, page: changes.page ?? 1 });
+  const apply = (changes: Filters) => loadClaims({ ...filters, ...changes, page: changes.page ?? (hasUiBug(UiBug.FILTER_KEEPS_PAGE) ? filters.page : 1) });
   const sentBack = summary.find((claim) => claim.status === ClaimStatus.SENT_BACK);
   const sentBackEvent = sentBack?.events.findLast((event) => event.toStatus === ClaimStatus.SENT_BACK);
   const activeTab = TABS.find((tab) => tab.status.join() === (filters.status ?? []).join());

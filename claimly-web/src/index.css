@@ -51,6 +51,15 @@
     color: var(--color-brand);
   }
 
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  label {
+    touch-action: manipulation;
+  }
+
   :focus-visible {
     outline: 2px solid var(--color-brand);
     outline-offset: 2px;

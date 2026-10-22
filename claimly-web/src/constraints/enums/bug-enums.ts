@@ -1,0 +1,9 @@
+export enum UiBug {
+  ERROR_UNDER_WRONG_FIELD = "f6l2",
+  SUMMARY_UNROUNDED = "m3t8",
+  DOUBLE_SUBMIT = "v7b4",
+  FILTER_KEEPS_PAGE = "a9q5",
+  DATE_SHIFTS_DAY = "s2h7",
+  SENT_BACK_AS_REJECTED = "p8n3",
+  GENERIC_ERROR_TOAST = "j4w6",
+}

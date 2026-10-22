@@ -13,10 +13,12 @@ import { ProjectSearch } from "@/components/claims/ProjectSearch";
 import { ReceiptDropzone } from "@/components/claims/ReceiptDropzone";
 import { TopBar } from "@/components/common/header/TopBar";
 import { CheckIcon } from "@/components/common/icons";
+import { ConfirmDialog } from "@/components/common/modals/ConfirmDialog";
 import { Button } from "@/components/ui/button";
 import { Input, NativeSelect, Textarea } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getVariant } from "@/configs/env";
+import { getVariant, hasUiBug } from "@/configs/env";
+import { UiBug } from "@/constraints/enums/bug-enums";
 import { Category, ClaimStatus, Currency } from "@/constraints/enums/claim-enums";
 import { StepOrder, SubmitLabel } from "@/constraints/enums/variant-enums";
 import { Claim, ClaimForm as ClaimFormData, FieldIssue, Project } from "@/constraints/types/claim-types";
@@ -74,12 +76,14 @@ export function ClaimForm({ existing }: { existing: Claim | null }) {
   const [receiptError, setReceiptError] = useState<string | undefined>();
   const [formError, setFormError] = useState<string | null>(null);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   const { register, control, handleSubmit, watch, setValue, setError, trigger, formState } = useForm<ClaimFormValues>({
     resolver: zodResolver(claimSchema),
     defaultValues: valuesFrom(existing),
   });
   const values = watch();
+  const merchantErrorMisplaced = hasUiBug(UiBug.ERROR_UNDER_WRONG_FIELD);
   const errors = formState.errors;
   const step = steps[stepIndex];
   const isLast = stepIndex === steps.length - 1;
@@ -133,7 +137,7 @@ export function ClaimForm({ existing }: { existing: Claim | null }) {
   };
 
   const goToDetailsIfInvalid = async () => {
-    const valid = await trigger();
+    const valid = await trigger(undefined, { shouldFocus: step === "details" });
     if (!valid) setStepIndex(steps.indexOf("details"));
     return valid;
   };
@@ -144,7 +148,7 @@ export function ClaimForm({ existing }: { existing: Claim | null }) {
 
   const onNext = async () => {
     if (step === "details") {
-      if (!(await trigger())) return;
+      if (!(await trigger(undefined, { shouldFocus: true }))) return;
       const id = await persist(values);
       if (id) setStepIndex(stepIndex + 1);
     } else setStepIndex(stepIndex + 1);
@@ -219,7 +223,7 @@ export function ClaimForm({ existing }: { existing: Claim | null }) {
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="merchant">Merchant</Label>
                   <Input id="merchant" aria-invalid={!!errors.merchant} aria-describedby={errors.merchant ? "merchant-error" : undefined} {...register("merchant")} />
-                  {errors.merchant ? (
+                  {errors.merchant && !merchantErrorMisplaced ? (
                     <span id="merchant-error" className="text-[13px] leading-[18px] text-danger">
                       {errors.merchant.message}
                     </span>
@@ -275,6 +279,7 @@ export function ClaimForm({ existing }: { existing: Claim | null }) {
                 <div className="flex flex-col gap-1.5 sm:col-span-2">
                   <Label htmlFor="description">Description</Label>
                   <Textarea id="description" rows={3} aria-invalid={!!errors.description} {...register("description")} />
+                  {merchantErrorMisplaced && errors.merchant && <span className="text-[13px] leading-[18px] text-danger">{errors.merchant.message}</span>}
                   <span className={cn("self-end text-xs leading-4", errors.description ? "text-danger" : "text-secondary")}>
                     {errors.description?.message ?? `${values.description.length} / 500`}
                   </span>
@@ -296,13 +301,7 @@ export function ClaimForm({ existing }: { existing: Claim | null }) {
             )}
             <div className="flex flex-wrap items-center gap-3 border-t border-rule px-7 py-4">
               {claimId && existing?.status !== ClaimStatus.SENT_BACK && (
-                <Button
-                  variant="ghost"
-                  className="px-1 text-danger hover:bg-danger-wash"
-                  onClick={async () => {
-                    if (await deleteDraft(claimId)) navigate(paths.myClaims);
-                  }}
-                >
+                <Button variant="ghost" className="px-1 text-danger hover:bg-danger-wash" onClick={() => setConfirmingDelete(true)}>
                   Delete draft
                 </Button>
               )}
@@ -316,7 +315,7 @@ export function ClaimForm({ existing }: { existing: Claim | null }) {
                 Save draft
               </Button>
               {isLast ? (
-                <Button disabled={isSaving} onClick={onSubmitClaim}>
+                <Button disabled={isSaving && !hasUiBug(UiBug.DOUBLE_SUBMIT)} onClick={onSubmitClaim}>
                   {SUBMIT_LABELS[variant.ui.submitLabel]}
                 </Button>
               ) : (
@@ -326,6 +325,18 @@ export function ClaimForm({ existing }: { existing: Claim | null }) {
               )}
             </div>
           </form>
+          {claimId && (
+            <ConfirmDialog
+              open={confirmingDelete}
+              onOpenChange={setConfirmingDelete}
+              title={`Delete CLM-${claimId}?`}
+              description="The draft and its receipt are removed. This cannot be undone."
+              confirmLabel="Delete draft"
+              onConfirm={async () => {
+                if (await deleteDraft(claimId)) navigate(paths.myClaims);
+              }}
+            />
+          )}
           <ClaimSummary amount={values.amount} currency={values.currency} category={values.category} nights={values.nights} policy={policy} user={user} recent={recentSameCategory} />
         </div>
       </main>

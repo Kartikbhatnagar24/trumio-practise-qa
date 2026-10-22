@@ -38,7 +38,7 @@ export function ReviewActions({ claim, user, approvalLimit }: { claim: Claim; us
           <label htmlFor="review-comment" className="text-xs leading-4 text-secondary">
             Comment for {claim.employee.name.split(" ")[0]} (needed to send back or reject)
           </label>
-          <Input id="review-comment" value={comment} aria-invalid={!!error} aria-describedby={error ? "review-error" : undefined} onChange={(event) => setComment(event.target.value)} placeholder="Add a comment" />
+          <Input id="review-comment" value={comment} aria-invalid={!!error} aria-describedby={error ? "review-error" : undefined} onChange={(event) => setComment(event.target.value)} placeholder="Add a comment…" autoComplete="off" />
           {error && (
             <span id="review-error" className="text-[13px] text-danger">
               {error}

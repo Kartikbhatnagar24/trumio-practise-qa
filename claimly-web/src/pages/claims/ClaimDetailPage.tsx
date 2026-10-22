@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { deleteDraft, loadClaim, submitDraft } from "@/actions/claims-actions";
@@ -9,6 +9,7 @@ import { ClaimStamp } from "@/components/claims/ClaimStamp";
 import { PolicyChecks } from "@/components/claims/PolicyChecks";
 import { TopBar } from "@/components/common/header/TopBar";
 import { ReceiptIcon } from "@/components/common/icons";
+import { ConfirmDialog } from "@/components/common/modals/ConfirmDialog";
 import { Button } from "@/components/ui/button";
 import { ClaimStatus, Currency, Role } from "@/constraints/enums/claim-enums";
 import { paths } from "@/routes";
@@ -43,6 +44,7 @@ export function ClaimDetailPage() {
   const user = useAuthStore((state) => state.user);
   const { claim, isClaimLoading, isSaving } = useClaimsStore();
   const policy = usePolicyStore((state) => state.policy);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   useEffect(() => {
     loadClaim(id);
@@ -143,15 +145,21 @@ export function ClaimDetailPage() {
           {isOwner && EDITABLE.includes(claim.status) && (
             <footer className="flex flex-wrap justify-end gap-2.5 border-t border-rule bg-sheet-soft px-8 py-4">
               {claim.status === ClaimStatus.DRAFT && (
-                <Button
-                  variant="danger"
-                  disabled={isSaving}
-                  onClick={async () => {
-                    if (await deleteDraft(claim.id)) navigate(paths.myClaims);
-                  }}
-                >
-                  Delete draft
-                </Button>
+                <>
+                  <Button variant="danger" disabled={isSaving} onClick={() => setConfirmingDelete(true)}>
+                    Delete draft
+                  </Button>
+                  <ConfirmDialog
+                    open={confirmingDelete}
+                    onOpenChange={setConfirmingDelete}
+                    title={`Delete CLM-${claim.id}?`}
+                    description="The draft and its receipt are removed. This cannot be undone."
+                    confirmLabel="Delete draft"
+                    onConfirm={async () => {
+                      if (await deleteDraft(claim.id)) navigate(paths.myClaims);
+                    }}
+                  />
+                </>
               )}
               <Button variant="secondary" asChild>
                 <Link to={paths.editClaim.generate(claim.id)}>Edit claim</Link>

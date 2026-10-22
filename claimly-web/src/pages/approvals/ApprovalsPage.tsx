@@ -5,6 +5,8 @@ import { ClaimFilters } from "@/components/claims/ClaimFilters";
 import { ClaimsTable } from "@/components/claims/ClaimsTable";
 import { TopBar } from "@/components/common/header/TopBar";
 import { Pager } from "@/components/common/tables/Pager";
+import { hasUiBug } from "@/configs/env";
+import { UiBug } from "@/constraints/enums/bug-enums";
 import { Role } from "@/constraints/enums/claim-enums";
 import { ClaimFilters as Filters } from "@/constraints/types/claim-types";
 import { cn } from "@/lib/utils";
@@ -22,7 +24,7 @@ export function ApprovalsPage() {
     loadApprovals({ ...DEFAULT_FILTERS, sort: "submitted" });
   }, []);
 
-  const apply = (changes: Filters) => loadApprovals({ ...filters, ...changes, page: changes.page ?? 1 });
+  const apply = (changes: Filters) => loadApprovals({ ...filters, ...changes, page: changes.page ?? (hasUiBug(UiBug.FILTER_KEEPS_PAGE) ? filters.page : 1) });
   const waiting = (page?.items ?? []).reduce((total, claim) => total + Number(claim.approvedAmountInr ?? claim.amountInr), 0);
 
   return (

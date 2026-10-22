@@ -25,6 +25,9 @@ jobs:
           - app: claimly-api
             port: 7460
             path: /health
+          - app: claimly-web
+            port: 7450
+            path: /env-config.js
     steps:
       - uses: actions/checkout@v4
 

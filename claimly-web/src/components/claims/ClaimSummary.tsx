@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 
+import { hasUiBug } from "@/configs/env";
+import { UiBug } from "@/constraints/enums/bug-enums";
 import { Category, Currency } from "@/constraints/enums/claim-enums";
 import { Claim, Policy, User } from "@/constraints/types/claim-types";
 import { paths } from "@/routes";
@@ -18,7 +20,8 @@ interface ClaimSummaryProps {
 export const toInr = (amount: string, currency: Currency, policy: Policy | null): number | null => {
   const value = Number(amount);
   if (!amount || Number.isNaN(value) || !policy) return null;
-  return Math.round(value * Number(policy.currencyRates[currency]) * 100) / 100;
+  const product = value * Number(policy.currencyRates[currency]);
+  return hasUiBug(UiBug.SUMMARY_UNROUNDED) ? product : Math.round(product * 100) / 100;
 };
 
 export function ClaimSummary({ amount, currency, category, nights, policy, user, recent }: ClaimSummaryProps) {
@@ -31,7 +34,7 @@ export function ClaimSummary({ amount, currency, category, nights, policy, user,
           Summary
         </h2>
         <div className="flex flex-col gap-0.5">
-          <span className="text-[26px] font-semibold leading-8 tabular-nums">{inr === null ? "₹0.00" : rupees(inr)}</span>
+          <span className="text-[26px] font-semibold leading-8 tabular-nums">{inr === null ? "₹0.00" : hasUiBug(UiBug.SUMMARY_UNROUNDED) ? `₹${inr}` : rupees(inr)}</span>
           <span className="text-secondary">
             {currency === Currency.INR ? "Paid in INR, no conversion" : policy ? `Converted from ${currency} at ₹${policy.currencyRates[currency]}` : "Converted to rupees"}
           </span>

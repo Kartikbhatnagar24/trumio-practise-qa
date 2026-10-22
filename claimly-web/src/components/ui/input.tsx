@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 export const fieldClass = "h-10 w-full rounded-[var(--radius-control)] border border-field bg-sheet px-2.5 text-ink placeholder:text-muted aria-[invalid=true]:border-danger";
 
 export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(({ className, ...props }, ref) => (
-  <input ref={ref} className={cn(fieldClass, className)} {...props} />
+  <input ref={ref} autoComplete="off" className={cn(fieldClass, className)} {...props} />
 ));
 Input.displayName = "Input";
 

@@ -54,11 +54,11 @@ export function LoginPage() {
           )}
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="email">Work email</Label>
-            <Input id="email" type="email" autoComplete="username" value={email} onChange={(event) => setEmail(event.target.value)} />
+            <Input id="email" name="email" type="email" autoComplete="username" spellCheck={false} placeholder="name@claimly.in…" value={email} onChange={(event) => setEmail(event.target.value)} />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} />
+            <Input id="password" name="password" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} />
           </div>
           <Button type="submit" disabled={isLoading}>
             {isLoading ? "Logging in…" : "Log in"}

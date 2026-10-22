@@ -39,7 +39,7 @@ export function ProjectSearch({ selected, error, onChange }: ProjectSearchProps)
         </PopoverTrigger>
         <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
           <Command shouldFilter={false}>
-            <CommandInput value={query} onValueChange={setQuery} placeholder="Type a project name or code" aria-label="Search projects" />
+            <CommandInput value={query} onValueChange={setQuery} placeholder="Type a project name or code…" aria-label="Search projects" />
             <CommandList>
               <CommandEmpty className="px-3 py-2 text-secondary">No active project matches.</CommandEmpty>
               {selected && (

@@ -1,6 +1,9 @@
 import { format, isValid, parse } from "date-fns";
 
-export const toIsoDate = (date: Date): string => format(date, "yyyy-MM-dd");
+import { hasUiBug } from "@/configs/env";
+import { UiBug } from "@/constraints/enums/bug-enums";
+
+export const toIsoDate = (date: Date): string => (hasUiBug(UiBug.DATE_SHIFTS_DAY) ? date.toISOString().slice(0, 10) : format(date, "yyyy-MM-dd"));
 
 export const fromTyped = (typed: string): string | null => {
   const parsed = parse(typed.trim(), "dd/MM/yyyy", new Date());

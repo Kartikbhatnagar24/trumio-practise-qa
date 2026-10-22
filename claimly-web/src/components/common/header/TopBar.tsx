@@ -53,7 +53,8 @@ export function TopBar({ crumbs, search, onSearch, children }: TopBarProps) {
             type="search"
             aria-label="Search claims"
             defaultValue={search}
-            placeholder="Search claims, merchants or claim numbers"
+            placeholder="Search claims, merchants or claim numbers…"
+            autoComplete="off"
             className="min-w-0 flex-1 border-0 bg-transparent text-ink outline-none"
           />
         </form>
