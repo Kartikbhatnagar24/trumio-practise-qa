@@ -1,18 +1,21 @@
 from fastapi import FastAPI
 
-from app.api.v1 import auth, system
+from app.api.v1 import auth, claims, projects, system
 from app.core import database
 from app.core.config import settings
+from app.core.context import build_context
 from app.core.variant import DEFAULT_VARIANT, Variant, load_variant
 from app.static.bugs import Bug, parse_bugs
 
 
 def create_app(variant: Variant | None = None, bugs: frozenset[Bug] = frozenset()) -> FastAPI:
-    variant = variant or DEFAULT_VARIANT
+    ctx = build_context(variant or DEFAULT_VARIANT, bugs)
     database.reset(database.load_seed())
     app = FastAPI(title='Claimly API', version='1.0.0', description='Expense claims for employees, managers and finance. Data resets on every start and on `POST /reset`.')
     app.include_router(system.router)
     app.include_router(auth.router)
+    app.include_router(projects.router)
+    app.include_router(claims.build_router(ctx))
     return app
 
 

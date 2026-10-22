@@ -53,6 +53,32 @@ class Role(str, Enum):
     FINANCE_ADMIN = 'FINANCE_ADMIN'
 
 
+class Category(str, Enum):
+    HOTEL = 'HOTEL'
+    MEALS = 'MEALS'
+    LOCAL_TRANSPORT = 'LOCAL_TRANSPORT'
+    AIRFARE = 'AIRFARE'
+    CLIENT_ENTERTAINMENT = 'CLIENT_ENTERTAINMENT'
+    OFFICE_SUPPLIES = 'OFFICE_SUPPLIES'
+
+
+class Currency(str, Enum):
+    INR = 'INR'
+    USD = 'USD'
+    EUR = 'EUR'
+    GBP = 'GBP'
+
+
+class ClaimStatus(str, Enum):
+    DRAFT = 'DRAFT'
+    SUBMITTED = 'SUBMITTED'
+    SENT_BACK = 'SENT_BACK'
+    MANAGER_APPROVED = 'MANAGER_APPROVED'
+    FINANCE_APPROVED = 'FINANCE_APPROVED'
+    PAID = 'PAID'
+    REJECTED = 'REJECTED'
+
+
 class Grade(str, Enum):
     G1 = 'G1'
     G2 = 'G2'

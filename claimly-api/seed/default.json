@@ -5,5 +5,10 @@
     {"id": "u-asha", "name": "Asha Verma", "email": "asha.verma@claimly.in", "role": "EMPLOYEE", "grade": "G2", "department": "Engineering", "manager_id": "u-rahul", "password_salt": "04a952f4a00dca4b", "password_hash": "dcb0085752338a119c32b463ec89d9f88df1f6a151cee0a7a56a66ec19cc9446"},
     {"id": "u-vikram", "name": "Vikram Nair", "email": "vikram.nair@claimly.in", "role": "EMPLOYEE", "grade": "G1", "department": "Engineering", "manager_id": "u-rahul", "password_salt": "66f96e290a6fec69", "password_hash": "945b199418f4bcc1a0e48811df3f7a891da1ad159da8f987e1b8ca3782e6e11f"},
     {"id": "u-neha", "name": "Neha Iyer", "email": "neha.iyer@claimly.in", "role": "FINANCE_ADMIN", "grade": "G3", "department": "Finance", "manager_id": null, "password_salt": "d2496aa056139eb1", "password_hash": "6216e5264ed70d7b48a252a7898d4d8af7cd091c560a4cb9a08eb30521269a28"}
+  ],
+  "projects": [
+    {"id": "p-atlas", "code": "PRJ-ATLAS", "name": "Atlas Payments Migration", "active": 1},
+    {"id": "p-harbor", "code": "PRJ-HARBOR", "name": "Harbor Logistics Portal", "active": 1},
+    {"id": "p-legacy", "code": "PRJ-LEGACY", "name": "Legacy CRM Support", "active": 0}
   ]
 }

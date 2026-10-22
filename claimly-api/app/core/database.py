@@ -9,6 +9,9 @@ from fastapi import Depends
 from app.core.config import settings
 
 SCHEMA = """
+DROP TABLE IF EXISTS events;
+DROP TABLE IF EXISTS claims;
+DROP TABLE IF EXISTS projects;
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
@@ -21,6 +24,46 @@ CREATE TABLE users (
     manager_id TEXT REFERENCES users(id),
     password_salt TEXT NOT NULL,
     password_hash TEXT NOT NULL
+);
+
+CREATE TABLE projects (
+    id TEXT PRIMARY KEY,
+    code TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    active INTEGER NOT NULL
+);
+
+CREATE TABLE claims (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    employee_id TEXT NOT NULL REFERENCES users(id),
+    category TEXT NOT NULL,
+    currency TEXT NOT NULL,
+    amount_minor INTEGER NOT NULL,
+    amount_inr_paise INTEGER NOT NULL,
+    merchant TEXT NOT NULL,
+    expense_date TEXT NOT NULL,
+    description TEXT NOT NULL,
+    project_id TEXT REFERENCES projects(id),
+    nights INTEGER,
+    status TEXT NOT NULL,
+    approved_amount_inr_paise INTEGER,
+    receipt_filename TEXT,
+    receipt_size INTEGER,
+    receipt_content_type TEXT,
+    created_at TEXT NOT NULL,
+    submitted_at TEXT
+);
+
+CREATE TABLE events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    claim_id INTEGER NOT NULL REFERENCES claims(id) ON DELETE CASCADE,
+    actor_id TEXT NOT NULL REFERENCES users(id),
+    action TEXT NOT NULL,
+    from_status TEXT,
+    to_status TEXT NOT NULL,
+    comment TEXT,
+    amount_inr_paise INTEGER,
+    at TEXT NOT NULL
 );
 """
 
