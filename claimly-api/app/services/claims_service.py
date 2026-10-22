@@ -6,6 +6,7 @@ from fastapi import HTTPException, UploadFile, status
 
 from app.core.config import settings
 from app.core.context import AppContext
+from app.models.claims import ClaimFilters
 from app.models.users import User
 from app.services import policy_service
 from app.services.money import from_minor, to_inr_paise, to_minor
@@ -152,6 +153,34 @@ def submit_claim(conn: sqlite3.Connection, ctx: AppContext, user: User, claim_id
         raise violation_error(status.HTTP_409_CONFLICT, [duplicate])
     conn.execute('UPDATE claims SET status = ?, submitted_at = ? WHERE id = ?', (ClaimStatus.SUBMITTED.value, now(), claim_id))
     record_event(conn, claim_id, user, 'submit', claim['status'], ClaimStatus.SUBMITTED.value)
+
+
+SORT_COLUMNS = {'date': 'claims.expense_date', 'amount': 'claims.amount_inr_paise', 'submitted': 'claims.submitted_at'}
+
+
+def list_claims(conn: sqlite3.Connection, ctx: AppContext, scope_sql: str, scope_params: list, filters: ClaimFilters) -> dict:
+    clauses, params = [scope_sql], list(scope_params)
+    if filters.status:
+        clauses.append(f'claims.status IN ({", ".join("?" for _ in filters.status)})')
+        params += [item.value for item in filters.status]
+    if filters.category:
+        clauses.append('claims.category = ?')
+        params.append(filters.category.value)
+    if filters.date_from:
+        clauses.append('claims.expense_date >= ?')
+        params.append(filters.date_from.isoformat())
+    if filters.date_to:
+        clauses.append('claims.expense_date <= ?')
+        params.append(filters.date_to.isoformat())
+    where = ' AND '.join(clauses)
+    base = f'FROM claims JOIN users ON users.id = claims.employee_id WHERE {where}'
+    total = conn.execute(f'SELECT COUNT(*) {base}', params).fetchone()[0]
+    key = filters.sort.value
+    direction = 'DESC' if key.startswith('-') else 'ASC'
+    order = f'{SORT_COLUMNS[key.lstrip("-")]} {direction}, claims.id DESC'
+    offset = (filters.page - 1) * filters.page_size
+    rows = conn.execute(f'SELECT claims.id {base} ORDER BY {order} LIMIT ? OFFSET ?', [*params, filters.page_size, offset]).fetchall()
+    return {'items': [claim_out(conn, ctx, row['id']) for row in rows], 'total': total, 'page': filters.page, 'page_size': filters.page_size}
 
 
 def claim_out(conn: sqlite3.Connection, ctx: AppContext, claim_id: int) -> dict:

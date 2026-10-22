@@ -79,6 +79,15 @@ class ClaimStatus(str, Enum):
     REJECTED = 'REJECTED'
 
 
+class SortKey(str, Enum):
+    DATE = 'date'
+    DATE_DESC = '-date'
+    AMOUNT = 'amount'
+    AMOUNT_DESC = '-amount'
+    SUBMITTED = 'submitted'
+    SUBMITTED_DESC = '-submitted'
+
+
 class PolicyCode(str, Enum):
     HOTEL_OVER_LIMIT = 'HOTEL_OVER_LIMIT'
     MEAL_OVER_CAP = 'MEAL_OVER_CAP'

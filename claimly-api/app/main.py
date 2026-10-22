@@ -17,6 +17,7 @@ def create_app(variant: Variant | None = None, bugs: frozenset[Bug] = frozenset(
     app.include_router(projects.router)
     app.include_router(claims.build_router(ctx))
     app.include_router(approvals.build_router(ctx))
+    app.include_router(approvals.build_queue_router(ctx))
     app.include_router(policy.build_router(ctx))
     return app
 

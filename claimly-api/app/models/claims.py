@@ -6,7 +6,7 @@ from typing import Annotated
 from pydantic import BaseModel, ConfigDict, Field, create_model
 
 from app.core.variant import ApiNames
-from app.static.enums import Category, ClaimStatus, Currency
+from app.static.enums import Category, ClaimStatus, Currency, SortKey
 
 Money = Annotated[Decimal, Field(gt=0, max_digits=12, decimal_places=2)]
 Merchant = Annotated[str, Field(min_length=1, max_length=120)]
@@ -42,11 +42,24 @@ class Project(BaseModel):
     name: str
 
 
+class ClaimFilters(BaseModel):
+    model_config = STRICT
+
+    status: list[ClaimStatus] = []
+    category: Category | None = None
+    date_from: date | None = None
+    date_to: date | None = None
+    sort: SortKey = SortKey.DATE_DESC
+    page: int = Field(1, ge=1)
+    page_size: int = Field(20, ge=1, le=100)
+
+
 @dataclass(frozen=True)
 class ClaimModels:
     create: type[BaseModel]
     update: type[BaseModel]
     out: type[BaseModel]
+    page: type[BaseModel]
     names: dict[str, str]
 
     def to_canonical(self, payload: BaseModel, partial: bool = False) -> dict:
@@ -97,4 +110,5 @@ def build_claim_models(api: ApiNames) -> ClaimModels:
         events=(list[ClaimEvent], ...),
         **{names['amount']: (Decimal, ...), names['merchant']: (str, ...), names['expense_date']: (date, ...)},
     )
-    return ClaimModels(create=create, update=update, out=out, names=names)
+    page = create_model('ClaimPage', items=(list[out], ...), total=(int, ...), page=(int, ...), page_size=(int, ...))
+    return ClaimModels(create=create, update=update, out=out, page=page, names=names)

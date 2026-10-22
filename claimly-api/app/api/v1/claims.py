@@ -1,10 +1,14 @@
-from fastapi import APIRouter, Response, UploadFile, status
+from typing import Annotated
+
+from fastapi import APIRouter, Query, Response, UploadFile, status
 
 from app.core.clock import Today
 from app.core.context import AppContext
 from app.core.database import Db
 from app.core.security import CurrentUser
+from app.models.claims import ClaimFilters
 from app.services import claims_service
+from app.static.enums import Role
 
 NOT_FOUND = {404: {'description': 'Claim not found'}}
 NOT_EDITABLE = {403: {'description': 'Not the claim owner'}, 409: {'description': 'Claim is not a draft or sent back'}}
@@ -14,6 +18,12 @@ def build_router(ctx: AppContext) -> APIRouter:
     models = ctx.models
     router = APIRouter(prefix=f'/{ctx.variant.api.claims_path.value}', tags=['claims'])
     ClaimCreate, ClaimUpdate, Claim = models.create, models.update, models.out
+
+    @router.get('', response_model=models.page)
+    def list_claims(user: CurrentUser, conn: Db, filters: Annotated[ClaimFilters, Query()]) -> dict:
+        if user.role == Role.FINANCE_ADMIN:
+            return claims_service.list_claims(conn, ctx, '1 = 1', [], filters)
+        return claims_service.list_claims(conn, ctx, 'claims.employee_id = ?', [user.id], filters)
 
     @router.post('', response_model=Claim, status_code=status.HTTP_201_CREATED)
     def create_claim(body: ClaimCreate, user: CurrentUser, conn: Db) -> dict:
