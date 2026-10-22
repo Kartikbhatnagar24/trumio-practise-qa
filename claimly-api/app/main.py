@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.api.v1 import auth, claims, projects, system
+from app.api.v1 import auth, claims, policy, projects, system
 from app.core import database
 from app.core.config import settings
 from app.core.context import build_context
@@ -16,6 +16,7 @@ def create_app(variant: Variant | None = None, bugs: frozenset[Bug] = frozenset(
     app.include_router(auth.router)
     app.include_router(projects.router)
     app.include_router(claims.build_router(ctx))
+    app.include_router(policy.build_router(ctx))
     return app
 
 

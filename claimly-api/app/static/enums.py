@@ -79,6 +79,15 @@ class ClaimStatus(str, Enum):
     REJECTED = 'REJECTED'
 
 
+class PolicyCode(str, Enum):
+    HOTEL_OVER_LIMIT = 'HOTEL_OVER_LIMIT'
+    MEAL_OVER_CAP = 'MEAL_OVER_CAP'
+    TOO_OLD = 'TOO_OLD'
+    FUTURE_DATE = 'FUTURE_DATE'
+    RECEIPT_REQUIRED = 'RECEIPT_REQUIRED'
+    DUPLICATE = 'DUPLICATE'
+
+
 class Grade(str, Enum):
     G1 = 'G1'
     G2 = 'G2'

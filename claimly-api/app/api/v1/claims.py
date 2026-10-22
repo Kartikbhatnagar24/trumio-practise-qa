@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Response, UploadFile, status
 
+from app.core.clock import Today
 from app.core.context import AppContext
 from app.core.database import Db
 from app.core.security import CurrentUser
@@ -26,7 +27,7 @@ def build_router(ctx: AppContext) -> APIRouter:
 
     @router.patch('/{claim_id}', response_model=Claim, responses={**NOT_FOUND, **NOT_EDITABLE})
     def update_claim(claim_id: int, body: ClaimUpdate, user: CurrentUser, conn: Db) -> dict:
-        claims_service.update_claim(conn, user, claim_id, models.to_canonical(body))
+        claims_service.update_claim(conn, user, claim_id, models.to_canonical(body, partial=True))
         return claims_service.claim_out(conn, ctx, claim_id)
 
     @router.delete('/{claim_id}', status_code=status.HTTP_204_NO_CONTENT, responses={**NOT_FOUND, **NOT_EDITABLE})
@@ -43,9 +44,13 @@ def build_router(ctx: AppContext) -> APIRouter:
         await claims_service.attach_receipt(conn, user, claim_id, file)
         return claims_service.claim_out(conn, ctx, claim_id)
 
-    @router.post('/{claim_id}/submit', response_model=Claim, responses={**NOT_FOUND, **NOT_EDITABLE})
-    def submit_claim(claim_id: int, user: CurrentUser, conn: Db) -> dict:
-        claims_service.submit_claim(conn, ctx, user, claim_id)
+    @router.post(
+        '/{claim_id}/submit',
+        response_model=Claim,
+        responses={**NOT_FOUND, **NOT_EDITABLE, 409: {'description': 'Not editable, or a duplicate of another claim'}, 422: {'description': 'Breaks the expense policy'}},
+    )
+    def submit_claim(claim_id: int, user: CurrentUser, conn: Db, today: Today) -> dict:
+        claims_service.submit_claim(conn, ctx, user, claim_id, today)
         return claims_service.claim_out(conn, ctx, claim_id)
 
     return router

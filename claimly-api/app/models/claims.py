@@ -49,9 +49,9 @@ class ClaimModels:
     out: type[BaseModel]
     names: dict[str, str]
 
-    def to_canonical(self, payload: BaseModel) -> dict:
+    def to_canonical(self, payload: BaseModel, partial: bool = False) -> dict:
         variant_to_canonical = {name: canonical for canonical, name in self.names.items()}
-        return {variant_to_canonical.get(key, key): value for key, value in payload.model_dump(exclude_unset=True).items()}
+        return {variant_to_canonical.get(key, key): value for key, value in payload.model_dump(exclude_unset=partial).items()}
 
     def to_variant(self, claim: dict) -> dict:
         return {self.names.get(key, key): value for key, value in claim.items()}

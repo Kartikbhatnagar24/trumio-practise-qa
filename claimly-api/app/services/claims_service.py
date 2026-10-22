@@ -1,5 +1,5 @@
 import sqlite3
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from decimal import Decimal
 
 from fastapi import HTTPException, UploadFile, status
@@ -7,7 +7,9 @@ from fastapi import HTTPException, UploadFile, status
 from app.core.config import settings
 from app.core.context import AppContext
 from app.models.users import User
+from app.services import policy_service
 from app.services.money import from_minor, to_inr_paise, to_minor
+from app.services.policy_service import PolicyViolation
 from app.static import messages
 from app.static.enums import Category, ClaimStatus, Currency, Role
 
@@ -136,8 +138,18 @@ def record_event(conn: sqlite3.Connection, claim_id: int, actor: User, action: s
     )
 
 
-def submit_claim(conn: sqlite3.Connection, ctx: AppContext, user: User, claim_id: int) -> None:
+def violation_error(status_code: int, violations: list[PolicyViolation]) -> HTTPException:
+    return HTTPException(status_code, [{'code': item.code.value, 'field': item.field, 'message': item.message} for item in violations])
+
+
+def submit_claim(conn: sqlite3.Connection, ctx: AppContext, user: User, claim_id: int, today: date) -> None:
     claim = get_editable(conn, user, claim_id)
+    violations = policy_service.check_claim(claim, user, ctx.variant.rules, ctx.bugs, today, ctx.models.names)
+    if violations:
+        raise violation_error(status.HTTP_422_UNPROCESSABLE_CONTENT, violations)
+    duplicate = policy_service.find_duplicate(conn, claim, ctx.models.names)
+    if duplicate:
+        raise violation_error(status.HTTP_409_CONFLICT, [duplicate])
     conn.execute('UPDATE claims SET status = ?, submitted_at = ? WHERE id = ?', (ClaimStatus.SUBMITTED.value, now(), claim_id))
     record_event(conn, claim_id, user, 'submit', claim['status'], ClaimStatus.SUBMITTED.value)
 
