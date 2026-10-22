@@ -2,10 +2,27 @@ import json
 import sqlite3
 from collections.abc import Iterator
 from contextlib import contextmanager
+from typing import Annotated
+
+from fastapi import Depends
 
 from app.core.config import settings
 
-SCHEMA = ''
+SCHEMA = """
+DROP TABLE IF EXISTS users;
+
+CREATE TABLE users (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    role TEXT NOT NULL,
+    grade TEXT NOT NULL,
+    department TEXT NOT NULL,
+    manager_id TEXT REFERENCES users(id),
+    password_salt TEXT NOT NULL,
+    password_hash TEXT NOT NULL
+);
+"""
 
 
 def connect() -> sqlite3.Connection:
@@ -31,6 +48,9 @@ def transaction() -> Iterator[sqlite3.Connection]:
 def get_db() -> Iterator[sqlite3.Connection]:
     with transaction() as conn:
         yield conn
+
+
+Db = Annotated[sqlite3.Connection, Depends(get_db)]
 
 
 def load_seed() -> dict:

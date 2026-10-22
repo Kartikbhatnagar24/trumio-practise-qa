@@ -47,6 +47,12 @@ class StepOrder(str, Enum):
     RECEIPT_FIRST = 'receipt_first'
 
 
+class Role(str, Enum):
+    EMPLOYEE = 'EMPLOYEE'
+    MANAGER = 'MANAGER'
+    FINANCE_ADMIN = 'FINANCE_ADMIN'
+
+
 class Grade(str, Enum):
     G1 = 'G1'
     G2 = 'G2'
