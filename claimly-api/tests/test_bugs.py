@@ -77,6 +77,38 @@ def error_wrong_field(client):
     return response.json()['detail'][0]['loc']
 
 
+def search_case_sensitive(client):
+    headers = login(client, ASHA)
+    create_draft(client, headers, merchant='Uber India')
+    return client.get('/claims', params={'q': 'uber'}, headers=headers).json()['total']
+
+
+def project_search_case_sensitive(client):
+    return len(client.get('/projects', params={'q': 'atlas'}, headers=login(client, ASHA)).json())
+
+
+def status_filter_first_only(client):
+    headers = login(client, ASHA)
+    create_draft(client, headers, amount='100.00')
+    submit(client, amount='200.00')
+    return client.get('/claims', params={'status': ['SUBMITTED', 'DRAFT']}, headers=headers).json()['total']
+
+
+def date_to_exclusive(client):
+    headers = login(client, ASHA)
+    create_draft(client, headers, expense_date='2026-06-05')
+    return client.get('/claims', params={'date_to': '2026-06-05'}, headers=headers).json()['total']
+
+
+def page_overlap(client):
+    headers = login(client, ASHA)
+    for amount in ('100.00', '200.00', '300.00'):
+        create_draft(client, headers, amount=amount)
+    first = client.get('/claims', params={'page_size': 2, 'sort': 'amount'}, headers=headers).json()['items']
+    second = client.get('/claims', params={'page_size': 2, 'page': 2, 'sort': 'amount'}, headers=headers).json()['items']
+    return [item['amount'] for item in first + second]
+
+
 CASES = [
     (Bug.RECEIPT_AT_THRESHOLD, receipt_at_threshold, 422, 200),
     (Bug.AGE_OFF_BY_ONE, age_off_by_one, 422, 200),
@@ -91,6 +123,11 @@ CASES = [
     (Bug.TOTAL_IGNORES_FILTERS, total_ignores_filters, 1, 2),
     (Bug.SORT_DIRECTION_IGNORED, sort_direction_ignored, ['900.00', '100.00'], ['100.00', '900.00']),
     (Bug.ERROR_WRONG_FIELD, error_wrong_field, ['body', 'amount'], ['body', 'merchant']),
+    (Bug.SEARCH_CASE_SENSITIVE, search_case_sensitive, 1, 0),
+    (Bug.PROJECT_SEARCH_CASE_SENSITIVE, project_search_case_sensitive, 1, 0),
+    (Bug.STATUS_FILTER_FIRST_ONLY, status_filter_first_only, 2, 1),
+    (Bug.DATE_TO_EXCLUSIVE, date_to_exclusive, 1, 0),
+    (Bug.PAGE_OVERLAP, page_overlap, ['100.00', '200.00', '300.00'], ['100.00', '200.00', '200.00', '300.00']),
 ]
 
 
@@ -106,7 +143,7 @@ def test_every_bug_has_a_case():
 
 def test_codes_are_opaque_and_unique():
     codes = [bug.value for bug in Bug]
-    assert len(codes) == len(set(codes)) == 13
+    assert len(codes) == len(set(codes)) == 18
     assert all(len(code) == 4 and code.isalnum() for code in codes)
 
 

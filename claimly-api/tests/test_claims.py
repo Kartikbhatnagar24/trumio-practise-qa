@@ -132,6 +132,11 @@ def test_projects_search(client):
     assert [project['code'] for project in response.json()] == ['PRJ-ATLAS']
 
 
+def test_projects_search_ignores_case(client):
+    response = client.get('/projects', params={'q': 'ATLAS payments'}, headers=login(client, ASHA))
+    assert [project['code'] for project in response.json()] == ['PRJ-ATLAS']
+
+
 def test_projects_hide_inactive(client):
     codes = [project['code'] for project in client.get('/projects', headers=login(client, ASHA)).json()]
     assert 'PRJ-LEGACY' not in codes

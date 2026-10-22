@@ -17,7 +17,7 @@ def create_app(variant: Variant | None = None, bugs: frozenset[Bug] = frozenset(
         misreport_field(app, ctx.models.names['amount'], ctx.models.names['merchant'])
     app.include_router(system.router)
     app.include_router(auth.router)
-    app.include_router(projects.router)
+    app.include_router(projects.build_router(ctx))
     app.include_router(claims.build_router(ctx))
     app.include_router(approvals.build_router(ctx))
     app.include_router(approvals.build_queue_router(ctx))

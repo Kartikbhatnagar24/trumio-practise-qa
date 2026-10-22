@@ -15,6 +15,11 @@ class Bug(str, Enum):
     TOTAL_IGNORES_FILTERS = 'y2g9'
     SORT_DIRECTION_IGNORED = 'c5u3'
     ERROR_WRONG_FIELD = 'r4a6'
+    SEARCH_CASE_SENSITIVE = 'g3n8'
+    PROJECT_SEARCH_CASE_SENSITIVE = 'u6p1'
+    STATUS_FILTER_FIRST_ONLY = 'x4d9'
+    DATE_TO_EXCLUSIVE = 'l5v7'
+    PAGE_OVERLAP = 'o2w5'
 
 
 UI_BUG_CODES = frozenset({'f6l2', 'm3t8', 'v7b4', 'a9q5', 's2h7', 'p8n3', 'j4w6'})

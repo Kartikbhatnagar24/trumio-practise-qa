@@ -161,9 +161,19 @@ SORT_COLUMNS = {'date': 'claims.expense_date', 'amount': 'claims.amount_inr_pais
 
 def list_claims(conn: sqlite3.Connection, ctx: AppContext, scope_sql: str, scope_params: list, filters: ClaimFilters) -> dict:
     clauses, params = [scope_sql], list(scope_params)
-    if filters.status:
-        clauses.append(f'claims.status IN ({", ".join("?" for _ in filters.status)})')
-        params += [item.value for item in filters.status]
+    term = (filters.q or '').strip()
+    if term:
+        number = term.upper().removeprefix('CLM-')
+        if Bug.SEARCH_CASE_SENSITIVE in ctx.bugs:
+            clauses.append('(instr(claims.merchant, ?) > 0 OR instr(claims.description, ?) > 0 OR CAST(claims.id AS TEXT) = ?)')
+            params += [term, term, number]
+        else:
+            clauses.append('(lower(claims.merchant) LIKE ? OR lower(claims.description) LIKE ? OR CAST(claims.id AS TEXT) = ?)')
+            params += [f'%{term.lower()}%', f'%{term.lower()}%', number]
+    statuses = filters.status[:1] if Bug.STATUS_FILTER_FIRST_ONLY in ctx.bugs else filters.status
+    if statuses:
+        clauses.append(f'claims.status IN ({", ".join("?" for _ in statuses)})')
+        params += [item.value for item in statuses]
     if filters.category:
         clauses.append('claims.category = ?')
         params.append(filters.category.value)
@@ -171,7 +181,7 @@ def list_claims(conn: sqlite3.Connection, ctx: AppContext, scope_sql: str, scope
         clauses.append('claims.expense_date >= ?')
         params.append(filters.date_from.isoformat())
     if filters.date_to:
-        clauses.append('claims.expense_date <= ?')
+        clauses.append('claims.expense_date < ?' if Bug.DATE_TO_EXCLUSIVE in ctx.bugs else 'claims.expense_date <= ?')
         params.append(filters.date_to.isoformat())
     where = ' AND '.join(clauses)
     base = f'FROM claims JOIN users ON users.id = claims.employee_id WHERE {where}'
@@ -183,6 +193,8 @@ def list_claims(conn: sqlite3.Connection, ctx: AppContext, scope_sql: str, scope
     direction = 'DESC' if key.startswith('-') and Bug.SORT_DIRECTION_IGNORED not in ctx.bugs else 'ASC'
     order = f'{SORT_COLUMNS[key.lstrip("-")]} {direction}, claims.id DESC'
     offset = (filters.page - 1) * filters.page_size
+    if Bug.PAGE_OVERLAP in ctx.bugs and offset:
+        offset -= 1
     rows = conn.execute(f'SELECT claims.id {base} ORDER BY {order} LIMIT ? OFFSET ?', [*params, filters.page_size, offset]).fetchall()
     return {'items': [claim_out(conn, ctx, row['id']) for row in rows], 'total': total, 'page': filters.page, 'page_size': filters.page_size}
 

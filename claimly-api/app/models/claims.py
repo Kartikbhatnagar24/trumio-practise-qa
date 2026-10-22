@@ -45,6 +45,7 @@ class Project(BaseModel):
 class ClaimFilters(BaseModel):
     model_config = STRICT
 
+    q: str | None = Field(None, max_length=100, description='Search merchant, description or claim number')
     status: list[ClaimStatus] = []
     category: Category | None = None
     date_from: date | None = None

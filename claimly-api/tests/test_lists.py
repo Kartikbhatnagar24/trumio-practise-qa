@@ -94,6 +94,36 @@ def test_employee_has_no_queue(client):
     assert client.get('/approvals', headers=login(client, ASHA)).status_code == 403
 
 
+def test_search_is_case_insensitive(client):
+    headers = login(client, ASHA)
+    create_draft(client, headers, merchant='Uber India', amount='210.00')
+    create_draft(client, headers, merchant='Chaayos', amount='90.00')
+    assert [item['merchant'] for item in client.get('/claims', params={'q': 'uber'}, headers=headers).json()['items']] == ['Uber India']
+    assert client.get('/claims', params={'q': 'UBER'}, headers=headers).json()['total'] == 1
+
+
+def test_search_matches_description_and_claim_number(client):
+    headers = login(client, ASHA)
+    claim = create_draft(client, headers, description='Airport drop for the Harbor kickoff')
+    assert client.get('/claims', params={'q': 'harbor'}, headers=headers).json()['total'] == 1
+    assert client.get('/claims', params={'q': f'CLM-{claim["id"]}'}, headers=headers).json()['total'] == 1
+
+
+def test_date_to_includes_its_day(client):
+    seed_claims(client)
+    body = client.get('/claims', params={'date_to': '2026-06-05'}, headers=login(client, ASHA)).json()
+    assert body['total'] == 2
+
+
+def test_pages_do_not_overlap(client):
+    seed_claims(client)
+    headers = login(client, ASHA)
+    first = [item['id'] for item in client.get('/claims', params={'page_size': 2}, headers=headers).json()['items']]
+    second = [item['id'] for item in client.get('/claims', params={'page_size': 2, 'page': 2}, headers=headers).json()['items']]
+    assert not set(first) & set(second)
+    assert len(first + second) == 4
+
+
 def test_finance_lists_all_claims(client):
     seed_claims(client)
     assert client.get('/claims', headers=login(client, NEHA)).json()['total'] == 5
