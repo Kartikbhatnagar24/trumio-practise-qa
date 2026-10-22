@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     receipts_dir: Path = Path('/tmp/claimly-receipts')
     seed_path: Path = ROOT / 'seed' / 'default.json'
     jwt_secret: str = 'claimly-dev-secret'
+    port: int = 7460
     claimly_variant: str | None = None
     claimly_bugs: str | None = None
 

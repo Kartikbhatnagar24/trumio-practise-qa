@@ -3,7 +3,7 @@ name: Build practice app images
 on:
   push:
     branches: [tru-dev]
-    paths: ['bookhub-api/**', 'bookhub-web/**', '.github/workflows/images.yml']
+    paths: ['bookhub-api/**', 'bookhub-web/**', 'claimly-api/**', 'claimly-web/**', '.github/workflows/images.yml']
   workflow_dispatch:
 
 permissions:
@@ -22,6 +22,9 @@ jobs:
           - app: bookhub-web
             port: 7410
             path: /
+          - app: claimly-api
+            port: 7460
+            path: /health
     steps:
       - uses: actions/checkout@v4
 
