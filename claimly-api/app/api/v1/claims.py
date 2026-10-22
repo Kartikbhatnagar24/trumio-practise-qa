@@ -8,6 +8,7 @@ from app.core.database import Db
 from app.core.security import CurrentUser
 from app.models.claims import ClaimFilters
 from app.services import claims_service
+from app.static.bugs import Bug
 from app.static.enums import Role
 
 NOT_FOUND = {404: {'description': 'Claim not found'}}
@@ -27,17 +28,17 @@ def build_router(ctx: AppContext) -> APIRouter:
 
     @router.post('', response_model=Claim, status_code=status.HTTP_201_CREATED)
     def create_claim(body: ClaimCreate, user: CurrentUser, conn: Db) -> dict:
-        claim_id = claims_service.create_claim(conn, user, models.to_canonical(body))
+        claim_id = claims_service.create_claim(conn, user, models.to_canonical(body), ctx.bugs)
         return claims_service.claim_out(conn, ctx, claim_id)
 
     @router.get('/{claim_id}', response_model=Claim, responses=NOT_FOUND)
     def get_claim(claim_id: int, user: CurrentUser, conn: Db) -> dict:
-        claims_service.get_visible(conn, user, claim_id)
+        claims_service.get_visible(conn, user, claim_id, leak=Bug.OTHER_CLAIM_VISIBLE in ctx.bugs)
         return claims_service.claim_out(conn, ctx, claim_id)
 
     @router.patch('/{claim_id}', response_model=Claim, responses={**NOT_FOUND, **NOT_EDITABLE})
     def update_claim(claim_id: int, body: ClaimUpdate, user: CurrentUser, conn: Db) -> dict:
-        claims_service.update_claim(conn, user, claim_id, models.to_canonical(body, partial=True))
+        claims_service.update_claim(conn, user, claim_id, models.to_canonical(body, partial=True), ctx.bugs)
         return claims_service.claim_out(conn, ctx, claim_id)
 
     @router.delete('/{claim_id}', status_code=status.HTTP_204_NO_CONTENT, responses={**NOT_FOUND, **NOT_EDITABLE})

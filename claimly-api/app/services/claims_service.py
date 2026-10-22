@@ -12,6 +12,7 @@ from app.services import policy_service
 from app.services.money import from_minor, to_inr_paise, to_minor
 from app.services.policy_service import PolicyViolation
 from app.static import messages
+from app.static.bugs import Bug
 from app.static.enums import Category, ClaimStatus, Currency, Role
 
 EDITABLE = {ClaimStatus.DRAFT.value, ClaimStatus.SENT_BACK.value}
@@ -31,9 +32,9 @@ def can_view(user: User, claim: sqlite3.Row, owner_manager_id: str | None) -> bo
     return claim['employee_id'] == user.id or user.role == Role.FINANCE_ADMIN or (user.role == Role.MANAGER and owner_manager_id == user.id)
 
 
-def get_visible(conn: sqlite3.Connection, user: User, claim_id: int) -> sqlite3.Row:
+def get_visible(conn: sqlite3.Connection, user: User, claim_id: int, leak: bool = False) -> sqlite3.Row:
     claim = conn.execute('SELECT claims.*, users.manager_id AS owner_manager_id FROM claims JOIN users ON users.id = claims.employee_id WHERE claims.id = ?', (claim_id,)).fetchone()
-    if claim is None or not can_view(user, claim, claim['owner_manager_id']):
+    if claim is None or not (leak or can_view(user, claim, claim['owner_manager_id'])):
         raise HTTPException(status.HTTP_404_NOT_FOUND, messages.CLAIM_NOT_FOUND)
     return claim
 
@@ -54,12 +55,12 @@ def check_details(conn: sqlite3.Connection, details: dict) -> None:
         raise field_error(['body', 'project_id'], messages.PROJECT_NOT_FOUND)
 
 
-def amounts(details: dict) -> dict:
+def amounts(details: dict, bugs: frozenset[Bug]) -> dict:
     amount: Decimal = details['amount']
-    return {'amount_minor': to_minor(amount), 'amount_inr_paise': to_inr_paise(amount, Currency(details['currency']))}
+    return {'amount_minor': to_minor(amount), 'amount_inr_paise': to_inr_paise(amount, Currency(details['currency']), Bug.FX_TRUNCATES in bugs)}
 
 
-def create_claim(conn: sqlite3.Connection, user: User, details: dict) -> int:
+def create_claim(conn: sqlite3.Connection, user: User, details: dict, bugs: frozenset[Bug]) -> int:
     check_details(conn, details)
     row = {
         'employee_id': user.id,
@@ -72,14 +73,14 @@ def create_claim(conn: sqlite3.Connection, user: User, details: dict) -> int:
         'nights': details.get('nights'),
         'status': ClaimStatus.DRAFT.value,
         'created_at': now(),
-        **amounts(details),
+        **amounts(details, bugs),
     }
     columns = ', '.join(row)
     cursor = conn.execute(f'INSERT INTO claims ({columns}) VALUES ({", ".join(f":{column}" for column in row)})', row)
     return cursor.lastrowid
 
 
-def update_claim(conn: sqlite3.Connection, user: User, claim_id: int, changes: dict) -> None:
+def update_claim(conn: sqlite3.Connection, user: User, claim_id: int, changes: dict, bugs: frozenset[Bug]) -> None:
     claim = get_editable(conn, user, claim_id)
     current = {
         'category': Category(claim['category']),
@@ -102,7 +103,7 @@ def update_claim(conn: sqlite3.Connection, user: User, claim_id: int, changes: d
         'description': merged['description'] or '',
         'project_id': merged['project_id'],
         'nights': merged['nights'],
-        **amounts(merged),
+        **amounts(merged, bugs),
     }
     assignments = ', '.join(f'{column} = :{column}' for column in row)
     conn.execute(f'UPDATE claims SET {assignments} WHERE id = :id', {**row, 'id': claim_id})
@@ -148,7 +149,7 @@ def submit_claim(conn: sqlite3.Connection, ctx: AppContext, user: User, claim_id
     violations = policy_service.check_claim(claim, user, ctx.variant.rules, ctx.bugs, today, ctx.models.names)
     if violations:
         raise violation_error(status.HTTP_422_UNPROCESSABLE_CONTENT, violations)
-    duplicate = policy_service.find_duplicate(conn, claim, ctx.models.names)
+    duplicate = None if Bug.DUPLICATE_ALLOWED in ctx.bugs else policy_service.find_duplicate(conn, claim, ctx.models.names)
     if duplicate:
         raise violation_error(status.HTTP_409_CONFLICT, [duplicate])
     conn.execute('UPDATE claims SET status = ?, submitted_at = ? WHERE id = ?', (ClaimStatus.SUBMITTED.value, now(), claim_id))
@@ -174,9 +175,12 @@ def list_claims(conn: sqlite3.Connection, ctx: AppContext, scope_sql: str, scope
         params.append(filters.date_to.isoformat())
     where = ' AND '.join(clauses)
     base = f'FROM claims JOIN users ON users.id = claims.employee_id WHERE {where}'
-    total = conn.execute(f'SELECT COUNT(*) {base}', params).fetchone()[0]
+    if Bug.TOTAL_IGNORES_FILTERS in ctx.bugs:
+        total = conn.execute(f'SELECT COUNT(*) FROM claims JOIN users ON users.id = claims.employee_id WHERE {scope_sql}', scope_params).fetchone()[0]
+    else:
+        total = conn.execute(f'SELECT COUNT(*) {base}', params).fetchone()[0]
     key = filters.sort.value
-    direction = 'DESC' if key.startswith('-') else 'ASC'
+    direction = 'DESC' if key.startswith('-') and Bug.SORT_DIRECTION_IGNORED not in ctx.bugs else 'ASC'
     order = f'{SORT_COLUMNS[key.lstrip("-")]} {direction}, claims.id DESC'
     offset = (filters.page - 1) * filters.page_size
     rows = conn.execute(f'SELECT claims.id {base} ORDER BY {order} LIMIT ? OFFSET ?', [*params, filters.page_size, offset]).fetchall()

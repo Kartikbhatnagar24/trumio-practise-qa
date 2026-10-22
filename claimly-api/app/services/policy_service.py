@@ -6,7 +6,7 @@ from app.core.variant import Rules
 from app.models.users import User
 from app.static import messages
 from app.static.bugs import Bug
-from app.static.enums import Category, ClaimStatus, PolicyCode
+from app.static.enums import Category, ClaimStatus, Grade, PolicyCode
 
 
 @dataclass(frozen=True)
@@ -22,14 +22,17 @@ def check_claim(claim: sqlite3.Row, employee: User, rules: Rules, bugs: frozense
     expense_date = date.fromisoformat(claim['expense_date'])
     if claim['category'] == Category.HOTEL.value and amount_inr > rules.hotel_nightly_limit * 100 * claim['nights']:
         violations.append(PolicyViolation(PolicyCode.HOTEL_OVER_LIMIT, names['amount'], messages.HOTEL_OVER_LIMIT.format(limit=rules.hotel_nightly_limit)))
-    meal_cap = rules.meal_cap_by_grade[employee.grade]
+    meal_cap = rules.meal_cap_by_grade[Grade.G1 if Bug.MEAL_CAP_WRONG_GRADE in bugs else employee.grade]
     if claim['category'] == Category.MEALS.value and amount_inr > meal_cap * 100:
         violations.append(PolicyViolation(PolicyCode.MEAL_OVER_CAP, names['amount'], messages.MEAL_OVER_CAP.format(limit=meal_cap, grade=employee.grade.value)))
+    max_age = rules.max_claim_age_days + (1 if Bug.AGE_OFF_BY_ONE in bugs else 0)
     if expense_date > today:
-        violations.append(PolicyViolation(PolicyCode.FUTURE_DATE, names['expense_date'], messages.FUTURE_DATE))
-    elif (today - expense_date).days > rules.max_claim_age_days:
+        if Bug.FUTURE_DATE_ALLOWED not in bugs:
+            violations.append(PolicyViolation(PolicyCode.FUTURE_DATE, names['expense_date'], messages.FUTURE_DATE))
+    elif (today - expense_date).days > max_age:
         violations.append(PolicyViolation(PolicyCode.TOO_OLD, names['expense_date'], messages.TOO_OLD.format(days=rules.max_claim_age_days)))
-    if amount_inr >= rules.receipt_required_from * 100 and not claim['receipt_filename']:
+    receipt_from = rules.receipt_required_from * 100 + (1 if Bug.RECEIPT_AT_THRESHOLD in bugs else 0)
+    if amount_inr >= receipt_from and not claim['receipt_filename']:
         violations.append(PolicyViolation(PolicyCode.RECEIPT_REQUIRED, 'receipt', messages.RECEIPT_REQUIRED.format(limit=rules.receipt_required_from)))
     return violations
 

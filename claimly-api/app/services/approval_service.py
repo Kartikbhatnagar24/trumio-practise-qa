@@ -8,6 +8,7 @@ from app.models.users import User
 from app.services.claims_service import field_error, get_visible, record_event
 from app.services.money import to_minor
 from app.static import messages
+from app.static.bugs import Bug
 from app.static.enums import ClaimStatus, Role
 
 MANAGER_STEP = ClaimStatus.SUBMITTED.value
@@ -30,11 +31,11 @@ def transition(conn: sqlite3.Connection, claim_id: int, from_status: str, to_sta
         raise conflict(messages.STALE_CLAIM)
 
 
-def reviewable(conn: sqlite3.Connection, user: User, claim_id: int, action: str) -> sqlite3.Row:
+def reviewable(conn: sqlite3.Connection, user: User, claim_id: int, action: str, allow_self: bool = False) -> sqlite3.Row:
     claim = get_visible(conn, user, claim_id)
     if user.role not in (Role.MANAGER, Role.FINANCE_ADMIN):
         raise HTTPException(status.HTTP_403_FORBIDDEN, messages.FORBIDDEN)
-    if claim['employee_id'] == user.id:
+    if claim['employee_id'] == user.id and not allow_self:
         raise HTTPException(status.HTTP_403_FORBIDDEN, messages.SELF_ACTION)
     expected = MANAGER_STEP if user.role == Role.MANAGER else FINANCE_STEP
     if claim['status'] != expected:
@@ -43,13 +44,13 @@ def reviewable(conn: sqlite3.Connection, user: User, claim_id: int, action: str)
 
 
 def approve(conn: sqlite3.Connection, ctx: AppContext, user: User, claim_id: int, body: ApproveIn) -> None:
-    claim = reviewable(conn, user, claim_id, 'approve')
+    claim = reviewable(conn, user, claim_id, 'approve', allow_self=Bug.SELF_APPROVAL in ctx.bugs)
     limit = ctx.variant.rules.manager_approval_limit
     if user.role == Role.FINANCE_ADMIN and claim['approved_amount_inr_paise'] <= limit * 100:
         raise conflict(messages.FINANCE_NOT_NEEDED.format(limit=limit))
     ceiling = claim['amount_inr_paise'] if user.role == Role.MANAGER else claim['approved_amount_inr_paise']
     approved = ceiling if body.approved_amount is None else to_minor(body.approved_amount)
-    if approved > claim['amount_inr_paise']:
+    if approved > claim['amount_inr_paise'] and Bug.PARTIAL_OVER_CLAIMED not in ctx.bugs:
         raise field_error(['body', 'approved_amount'], messages.APPROVED_OVER_CLAIMED)
     if approved < ceiling and not body.comment:
         raise field_error(['body', 'comment'], messages.PARTIAL_NEEDS_COMMENT, 'missing')
@@ -75,7 +76,8 @@ def pay(conn: sqlite3.Connection, ctx: AppContext, user: User, claim_id: int) ->
     if user.role != Role.FINANCE_ADMIN:
         raise HTTPException(status.HTTP_403_FORBIDDEN, messages.FORBIDDEN)
     limit = ctx.variant.rules.manager_approval_limit
-    if claim['status'] == ClaimStatus.MANAGER_APPROVED.value and claim['approved_amount_inr_paise'] > limit * 100:
+    over_limit = claim['status'] == ClaimStatus.MANAGER_APPROVED.value and claim['approved_amount_inr_paise'] > limit * 100
+    if over_limit and Bug.PAY_SKIPS_FINANCE not in ctx.bugs:
         raise conflict(messages.FINANCE_APPROVAL_NEEDED.format(limit=limit))
     if claim['status'] not in (ClaimStatus.MANAGER_APPROVED.value, ClaimStatus.FINANCE_APPROVED.value):
         raise wrong_state('pay', claim['status'])

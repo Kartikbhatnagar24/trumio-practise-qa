@@ -2,7 +2,19 @@ from enum import Enum
 
 
 class Bug(str, Enum):
-    pass
+    RECEIPT_AT_THRESHOLD = 'q7m2'
+    AGE_OFF_BY_ONE = 't4k9'
+    FUTURE_DATE_ALLOWED = 'b8x1'
+    MEAL_CAP_WRONG_GRADE = 'n2v6'
+    FX_TRUNCATES = 'h5r3'
+    SELF_APPROVAL = 'w9c4'
+    PARTIAL_OVER_CLAIMED = 'd3p8'
+    PAY_SKIPS_FINANCE = 'k6f2'
+    DUPLICATE_ALLOWED = 'z1j7'
+    OTHER_CLAIM_VISIBLE = 'e8s5'
+    TOTAL_IGNORES_FILTERS = 'y2g9'
+    SORT_DIRECTION_IGNORED = 'c5u3'
+    ERROR_WRONG_FIELD = 'r4a6'
 
 
 UI_BUG_CODES = frozenset({'f6l2', 'm3t8', 'v7b4', 'a9q5', 's2h7', 'p8n3', 'j4w6'})
