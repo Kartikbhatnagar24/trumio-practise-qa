@@ -1,4 +1,5 @@
 from datetime import date
+from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
@@ -14,6 +15,7 @@ TODAY = date(2026, 6, 15)
 def client_for(tmp_path, monkeypatch):
     monkeypatch.setattr(settings, 'db_path', tmp_path / 'claimly.db')
     monkeypatch.setattr(settings, 'receipts_dir', tmp_path / 'receipts')
+    monkeypatch.setattr(settings, 'seed_path', Path(__file__).parent / 'seed_minimal.json')
 
     def build(variant=None, bugs=()):
         app = create_app(variant, frozenset(bugs))
