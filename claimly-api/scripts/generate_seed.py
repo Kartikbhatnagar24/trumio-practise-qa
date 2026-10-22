@@ -285,7 +285,7 @@ def main() -> None:
     users = build_users(rng)
     claims, events = build_claims(rng, users)
     projects = [{'id': pid, 'code': code, 'name': name, 'active': active} for pid, code, name, active in PROJECTS]
-    print(json.dumps({'users': users, 'projects': projects, 'claims': claims, 'events': events}, indent=1, ensure_ascii=False))
+    print(json.dumps({'anchor_date': TODAY.isoformat(), 'users': users, 'projects': projects, 'claims': claims, 'events': events}, indent=1, ensure_ascii=False))
 
 
 if __name__ == '__main__':

@@ -2,6 +2,7 @@ import json
 import sqlite3
 from collections.abc import Iterator
 from contextlib import contextmanager
+from datetime import date, datetime, timedelta
 from typing import Annotated
 
 from fastapi import Depends
@@ -100,8 +101,29 @@ def load_seed() -> dict:
     return json.loads(settings.seed_path.read_text(encoding='utf-8'))
 
 
+DATE_COLUMNS = {'claims': ('expense_date', 'created_at', 'submitted_at'), 'events': ('at',)}
+
+
+def shift(value: str | None, days: timedelta) -> str | None:
+    if value is None:
+        return None
+    if len(value) == 10:
+        return (date.fromisoformat(value) + days).isoformat()
+    return (datetime.fromisoformat(value) + days).isoformat()
+
+
+def move_to_today(seed: dict) -> dict:
+    days = date.today() - date.fromisoformat(seed['anchor_date'])
+    moved = {table: rows for table, rows in seed.items() if table != 'anchor_date'}
+    for table, columns in DATE_COLUMNS.items():
+        moved[table] = [{**row, **{column: shift(row[column], days) for column in columns}} for row in seed.get(table, [])]
+    return moved
+
+
 def reset(seed: dict) -> None:
     settings.db_path.parent.mkdir(parents=True, exist_ok=True)
+    if 'anchor_date' in seed:
+        seed = move_to_today(seed)
     with transaction() as conn:
         conn.executescript(SCHEMA)
         for table, rows in seed.items():

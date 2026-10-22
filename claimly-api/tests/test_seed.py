@@ -77,6 +77,22 @@ def test_seed_logins_work(demo):
         assert demo.get('/me', headers=login(demo, email)).status_code == 200
 
 
+def test_reset_moves_seed_dates_to_today(demo, seed):
+    from datetime import date, timedelta
+
+    from app.core.database import connect
+
+    newest_seeded = max(date.fromisoformat(claim['expense_date']) for claim in seed['claims'])
+    shift = date.today() - date.fromisoformat(seed['anchor_date'])
+    conn = connect()
+    newest = conn.execute('SELECT MAX(expense_date) FROM claims').fetchone()[0]
+    first_event = conn.execute('SELECT at FROM events ORDER BY id LIMIT 1').fetchone()[0]
+    conn.close()
+    assert date.fromisoformat(newest) == newest_seeded + shift
+    assert date.fromisoformat(first_event[:10]) == date.fromisoformat(seed['events'][0]['at'][:10]) + shift
+    assert shift >= timedelta(0)
+
+
 def test_demo_lists_have_data(demo):
     assert demo.get('/claims', headers=login(demo, ASHA)).json()['total'] > 0
     assert demo.get('/approvals', headers=login(demo, RAHUL)).json()['total'] > 0
